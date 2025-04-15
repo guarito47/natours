@@ -34,7 +34,7 @@ toursRouter
     .get(tourController.getMonthlyPlan);
 
 toursRouter
-    .route('/')
+    .route('/getAllTours')
     //.get(tourController.getAllTours)
     .get(tourController4MySql.getAllTours)
     .post(tourController.createTour);    
