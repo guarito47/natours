@@ -20,14 +20,14 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-- script: |
-    mkdir -p $(Build.ArtifactStagingDirectory)
-    cp -R ./* $(Build.ArtifactStagingDirectory)
-  displayName: 'copy files to staging directory'
-
-- task: PublishBuildArtifacts@1
+- task: ArchiveFiles@2
+  displayName: 'Archive files'
   inputs:
-    PathtoPublish: 'Build.ArtifactStagingDirectory'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
-  displayName: 'publish natours artifact'
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: zip
+        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        replaceExistingArchive: true
+
+- upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+  artifact: drop
