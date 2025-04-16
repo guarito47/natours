@@ -36,12 +36,12 @@ exports.getTour= async(req, res)=>{
     
     try{
         //Tour.findOne({_id: req.params.id})
-        const tourFinded= await Tour.findById(req.params.id);
+        const tourbyId= await mySqlDb.query(`select * from tour where tour.idTour= ${req.params.id}`);
         res.status(200).json(
             {
                 status:'succes',
                 data: {
-                    tourFinded
+                    tourbyId
                 }
             }
         );

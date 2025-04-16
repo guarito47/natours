@@ -44,7 +44,8 @@ toursRouter
 
 toursRouter
     .route('/:id')
-    .get(tourController.getTour)
+    //.get(tourController.getTour)
+    .get(tourController4MySql.getTour)
     .patch(tourController.updateTour)
     .delete(tourController.deleteTour);
 
