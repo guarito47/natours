@@ -40,9 +40,8 @@ exports.getTour= async(req, res)=>{
         res.status(200).json(
             {
                 status:'succes v1 azure',
-                data: {
-                    tourbyId
-                }
+                data:tourbyId[0]
+                
             }
         );
     } catch(err){
