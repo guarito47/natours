@@ -25,7 +25,7 @@ mySqlPool.query('SELECT 1001')
   console.log(error);
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.listen(port, ()=>{
   console.log(`guaritorus working on port:${port}`);
 });

@@ -53,7 +53,7 @@ exports.getTour= async(req, res)=>{
         const tourFinded= await Tour.findById(req.params.id);
         res.status(200).json(
             {
-                status:'succes',
+                status:'success azure update v2',
                 data: {
                     tourFinded
                 }

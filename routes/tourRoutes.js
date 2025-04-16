@@ -34,10 +34,13 @@ toursRouter
     .get(tourController.getMonthlyPlan);
 
 toursRouter
-    .route('/getAllTours')
-    //.get(tourController.getAllTours)
-    .get(tourController4MySql.getAllTours)
+    .route('/')
+    .get(tourController.getAllTours)
     .post(tourController.createTour);    
+
+toursRouter
+    .route('/getAllTours')    
+    .get(tourController4MySql.getAllTours)    
 
 toursRouter
     .route('/:id')
