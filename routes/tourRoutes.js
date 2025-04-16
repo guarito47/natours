@@ -36,16 +36,16 @@ toursRouter
 toursRouter
     .route('/')
     .get(tourController.getAllTours)
-    .post(tourController.createTour);    
+    //.post(tourController.createTour); 
+    .post(tourController4MySql.createTour); 
+
+toursRouter
+    .route('/postTour')    
+    .post(tourController4MySql.createTour); 
 
 toursRouter
     .route('/getAllTours')    
     .get(tourController4MySql.getAllTours);   
-
-toursRouter
-    .route('/postTour')    
-    .post(tourController4MySql.createTour);   
-
 
 toursRouter
     .route('/:id')

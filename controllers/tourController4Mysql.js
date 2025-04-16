@@ -14,7 +14,7 @@ exports.getAllTours= async(req, res)=>{
 
         res.status(200).json(
             {
-                status:'succes',                
+                status:'succes 16/4',                
                 //the retrieve data comes with junk data from mysql, to avoid to show that we ill only reffer to 
         //the position [0] where is nested all the records of our query
                 totalRecords: data[0].length,
@@ -39,7 +39,7 @@ exports.getTour= async(req, res)=>{
         const tourbyId= await mySqlDb.query(`select * from tour where tour.idTour= ${req.params.id}`);
         res.status(200).json(
             {
-                status:'succes v1 azure',
+                status:'succes 16/4 azure',
                 data:tourbyId[0]
                 
             }
