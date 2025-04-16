@@ -67,7 +67,7 @@ exports.createTour=async(req, res)=>{
     .status(201)
     .json(
         {
-            status:'success',
+            status:'success on azure v2',
             data:{
                 tour: newTour
             } 
