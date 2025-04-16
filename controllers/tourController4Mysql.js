@@ -39,7 +39,7 @@ exports.getTour= async(req, res)=>{
         const tourbyId= await mySqlDb.query(`select * from tour where tour.idTour= ${req.params.id}`);
         res.status(200).json(
             {
-                status:'succes',
+                status:'succes v1 azure',
                 data: {
                     tourbyId
                 }
