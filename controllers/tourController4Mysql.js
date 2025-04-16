@@ -56,18 +56,13 @@ exports.getTour= async(req, res)=>{
 };
 
 exports.createTour=async(req, res)=>{
-    //this is the old way to create new row/document in the db
-    //const newTour= new Tour({sampleDataHere});
-    //newTour.save();
+    
 
     try{
-    //newest way to create/store new row/document in the db
-    //directly calling a method from the model squema, while the older way
-    //creates an instance and as a document object uses the method save to do the exact task 
-    //intead to use the then() to get the result obj we upgrate to async function
-    //so we can use await to get the result in a more secuence running way
-    const newTour=  await Tour.create(req.body);
 
+    const {idtour,name,duration,difficulty,price,summary,imageCover}=  req.body;
+    const newTour= await mySqlDb.query(`INSERT INTO tour (idtour,name,duration,difficulty,price,summary,imageCover) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)`, [idtour, name, duration, difficulty, price, summary, imageCover]);
     res
     .status(201)
     .json(
