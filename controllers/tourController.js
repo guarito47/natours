@@ -29,7 +29,7 @@ exports.getAllTours= async(req, res)=>{
     res
     .status(200)
     .json({
-        status:'success',
+        status:'success v3 9pm',
     
         results: tours.length,
         data: {
