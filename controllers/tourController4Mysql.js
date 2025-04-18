@@ -14,7 +14,7 @@ exports.getAllTours= async(req, res)=>{
 
         res.status(200).json(
             {
-                status:'succes 16/4',                
+                status:'succes 18/4',                
                 //the retrieve data comes with junk data from mysql, to avoid to show that we ill only reffer to 
         //the position [0] where is nested all the records of our query
                 totalRecords: data[0].length,
