@@ -3,7 +3,7 @@
  * @description this controller handle all about authorization, givin access tokens and bypass authenticated users .
  * @author Edwin Guarachi
  * @created 4/22/2025
- * @lastUpdate 4/23/2025
+ * @lastUpdate 4/25/2025
  * @license MIT License
  */
 require('../utils/logger');

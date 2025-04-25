@@ -1,3 +1,11 @@
+/**
+ * @file app.js
+ * @description creates the logger to track the app
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/25/2025
+ * @license MIT License
+ */
 const {createLogger, format, transports, loggers} = require ('winston');
 const winston = require('winston');
 

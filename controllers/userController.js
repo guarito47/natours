@@ -4,7 +4,7 @@
  * creating new user, updating, deleting user and so on
  * @author Edwin Guarachi
  * @created 4/22/2025
- * @lastUpdate 4/23/2025
+ * @lastUpdate 4/25/2025
  * @license MIT License
  */
 const User= require('../models/userModel');
@@ -40,7 +40,7 @@ exports.getUser=(req, res)=>{
     .status(500)
     .json({
         status:'error',
-        message: 'user page still working'
+        message: 'user page still working v2'
     });
 };
 

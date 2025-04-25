@@ -1,3 +1,11 @@
+/**
+ * @file app.js
+ * @description creates a new app from express framework also define express routes
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/25/2025
+ * @license MIT License
+ */
 const express = require('express');
 const morgan = require('morgan');
 const toursRouter = require('./routes/tourRoutes');

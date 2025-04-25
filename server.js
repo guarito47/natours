@@ -3,7 +3,7 @@
  * @description this controller handle all about authorization, givin access tokens and bypass authenticated users .
  * @author Edwin Guarachi
  * @created 4/22/2025
- * @lastUpdate 4/23/2025
+ * @lastUpdate 4/25/2025
  * @license MIT License
  */
 const dotEnv = require('dotenv');
@@ -31,12 +31,12 @@ const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWO
 mongoose.connect(BD, { 
 }).then(()=>{ console.log('moongo db connection success');});
 
-mySqlPool.query('SELECT 1001')
+/*mySqlPool.query('SELECT 1001')
          .then(()=>{
   console.log('conecction to mysql succeeded');
 }).catch((error)=>{
   console.log(error);
-});
+});*/
 
 const port = process.env.PORT || 8080;
 const server=app.listen(port, ()=>{
