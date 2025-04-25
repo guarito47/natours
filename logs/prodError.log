@@ -1,0 +1,106 @@
+{"auth":false,"level":"error","message":"login user error","method":"get","timestamp":"2025-04-25T13:34:09.593Z"}
+{
+  method: 'get',
+  auth: false,
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  message: 'login user error Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:106:41',
+  timestamp: '2025-04-25T13:40:01.507Z'
+}
+{
+  method: 'get',
+  auth: false,
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  message: 'login user error Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:106:41',
+  timestamp: '2025-04-25T13:54:44.883Z'
+}
+{
+  method: 'get',
+  auth: false,
+  service: 'Prod logger service',
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  message: 'login user error Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:106:41',
+  timestamp: '2025-04-25T14:03:35.301Z'
+}
+{
+  method: 'get',
+  auth: false,
+  service: 'Prod logger service',
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  message: 'login user error Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:106:41',
+  timestamp: '2025-04-25T14:08:18.846Z'
+}
+{
+  method: 'get',
+  auth: false,
+  service: 'Prod logger service',
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  message: 'login user error Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:106:41',
+  timestamp: '2025-04-25T14:10:33.588Z'
+}
+{
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  service: 'Prod logger service',
+  message: 'Incorrect email or password',
+  stack: 'Error: Incorrect email or password\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:93:18',
+  timestamp: '2025-04-25T14:21:48.086Z'
+}
+{
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  service: 'Prod logger service',
+  message: 'You are not logged in! please log in first',
+  stack: 'Error: You are not logged in! please log in first\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:123:18\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\utils\\catchAsync.js:8:5\n' +
+    '    at Layer.handle [as handle_request] (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at next (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\route.js:149:13)\n' +
+    '    at Route.dispatch (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\route.js:119:3)\n' +
+    '    at Layer.handle [as handle_request] (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\layer.js:95:5)\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\index.js:284:15\n' +
+    '    at Function.process_params (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\index.js:346:12)\n' +
+    '    at next (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\index.js:280:10)\n' +
+    '    at Function.handle (C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\node_modules\\express\\lib\\router\\index.js:175:3)',
+  timestamp: '2025-04-25T14:30:30.585Z'
+}
+{
+  statusCode: 401,
+  status: 'fail',
+  isOperational: true,
+  level: 'error',
+  service: 'Prod logger service',
+  message: 'Incorrect email or password for logger for prod',
+  stack: 'Error: Incorrect email or password for logger for prod\n' +
+    '    at C:\\Users\\eguar\\Desktop\\TESTIFY\\natoursAzureRepo\\natours\\controllers\\authController.js:93:18',
+  timestamp: '2025-04-25T15:00:43.397Z'
+}

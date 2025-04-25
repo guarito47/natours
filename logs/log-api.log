@@ -1,0 +1,6 @@
+[2025-04-25T13:14:51.377Z] [error]: test error from looger
+[2025-04-25T13:14:51.379Z] [warn]: test warn from looger
+[2025-04-25T13:14:51.379Z] [info]: test info from looger
+[2025-04-25T13:19:27.856Z] [info]: login user info
+[2025-04-25T13:19:27.858Z] [warn]: login user warn
+[2025-04-25T13:19:27.859Z] [error]: login user error

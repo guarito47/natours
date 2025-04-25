@@ -1,22 +1,35 @@
-
+/**
+ * @file server.js
+ * @description this controller handle all about authorization, givin access tokens and bypass authenticated users .
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/23/2025
+ * @license MIT License
+ */
 const dotEnv = require('dotenv');
 const mongoose = require('mongoose');
 const mySqlPool= require('./config/dbMysql');
+//const logger = require('./utils/logger');
+
+//and all the rest means syncronus we need to handle here like division/0 
+
+/**
+ * overrites the process when uncaught errors was not handle by our errors handlers
+ * @param {Object} err the uncaught global error 
+ */
+process.on('uncaughtException', err=>{
+  console.log('NATOURS UNCAUGHT EXCEPTION! SHUTTING DOWN');
+  console.log(err.name, err.message);
+  process.exit(1);  
+});
 
 dotEnv.config({path: './config.env'});
 const app = require('./app');
 
-//to start handling the database first lets get the connection string replaced with the password
 const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
-//now we have our conection string lets connect and pass some option in object format
-mongoose.connect(BD, { //the parameter are not longer needing in the latest versions
-  //useNewUrlParser:true,
-  //useCreateIndex:true,
-  //useUnifiedTopology: true,
-  //useFindAndModify:false
-}).then(()=>{ console.log('moongo db connection success');});
-//check all their mongoose methods 
 
+mongoose.connect(BD, { 
+}).then(()=>{ console.log('moongo db connection success');});
 
 mySqlPool.query('SELECT 1001')
          .then(()=>{
@@ -26,7 +39,21 @@ mySqlPool.query('SELECT 1001')
 });
 
 const port = process.env.PORT || 8080;
-app.listen(port, ()=>{
+const server=app.listen(port, ()=>{
   console.log(`guaritorus working on port:${port}`);
+});
+
+/**
+* for all asynchronous promises that we dont catch in a try section will fall here 
+* to handle global unhandled promises /rejections we will use this listener when 
+* raise an hunhandled promise like a db conection fail
+* @param {Object} err the unhandled promise rejection error 
+*/
+process.on('unhandledRejection', err=>{
+  console.log('NATOURS UNHANDLER REJECTION! SHUTTING DOWN');
+  console.log(err.name, err.message);
+  server.close(()=>{    
+    process.exit(1);
+  });
 });
 

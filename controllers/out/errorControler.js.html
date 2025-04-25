@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: errorControler.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: errorControler.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file errorController.js
+ * @description handle mongo DB , JWT errors, and send a custom error 
+ * dependig is are running in development or production mode
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/23/2025
+ * @license MIT License
+ */
+const AppError = require('../utils/appError');
+
+/**
+ * handle mongo invalid format to parse mongo schema field
+ * @param {Object} err the mongo db error 
+ * @returns {AppError} a custom error with a proper message
+ */
+const handleCastErrorDB = (err)=>{
+  //path is the db field that mongo find the error, and value the wrong value
+  const message= `invalid ${err.path}: ${err.value}.`;
+  return new AppError(message, 400);
+}
+
+/**
+ * handle mongo already exist document in the db
+ * @param {Object} err the mongo db error 
+ * @returns {AppError} a custom error with a proper message
+ */
+const handleDuplicateDB = (err)=>{
+  //to find the text/value inside the errmsg field that that causes the conflict we will use regular expression
+  const value= err.errorResponse.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+  
+  const message= `Duplicate Field Value: ${value}.`;
+  return new AppError(message, 400);
+}
+
+/**
+ * handle mongo schema validation error 
+ * @param {Object} err the mongo db error 
+ * @returns {AppError} a custom error with a proper message
+ */
+const handleValidationErrorDB = (err)=>{
+  //this will loop from the errors that is an arrays o error where will just extract the message of each one
+  const errors = Object.values(err.errors).map(el =>el.message);
+  //finally will create a string with all the messages separated by ". "
+  const message= `Invalid Input Data.${errors.join('. ')}`;
+  return new AppError(message, 400);
+}
+/*JWT HANDLER ERRORS*/
+/**
+ * handle JWT invalid token
+ * @returns {AppError} a custom error with a proper message
+ */
+const handleJwtError=()=> new AppError('Invalid token please log in again', 401);
+/**
+ * handle JWT expired token
+ * @returns {AppError} a custom error with a proper message
+ */
+const handleJwtExpire=()=> new AppError('Your session was expired, please log in again', 401);
+
+/**
+ * send development environment detailed error response with detailed fields about the error 
+ * @param {Object} err the global error object
+ * @param {Object} res the global response to return to the client
+ */
+const sendErrorDev= (err, res)=>{
+  //when is running in development we will send as much details to the programmer
+  res.status(err.statusCode).json({
+    status: err.status,
+    error: err,
+    message: err.message,
+    stack: err.stack
+  });
+};
+
+/**
+ * send production environment resume error response with minor fields about the error 
+ * @param {Object} err the global error object
+ * @param {Object} res the global response to return to the client
+ */
+const sendErrorProd=(err, res)=>{
+
+  if (err.isOperational){
+    res.status(err.statusCode).json({
+      status: err.status,      
+      message: err.message,      
+    });
+  } else{ //if is non caused bu us unexpected errors we will not send a detailed message to the client
+    //1) log the error
+    console.error('ERROR!!', err);
+    //2) send generic message
+    res.status(500).json({
+      status:'error',
+      message: 'something went very wrong !'
+    })
+  }
+};
+
+
+/**
+ * main error hub that routes development error or production errors for mongo and jwt errors 
+ * @param {Object} err the global error object
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+module.exports= (err, req, res, next)=>{
+  //to assing status code number just in case if we dont have predefined one (replace if)
+  err.statusCode= err.statusCode || 500;
+  //to assing status text related just in case if we dont have predefined one 
+  err.status= err.status || 'error';
+
+  if(process.env.NODE_ENV.trim()==='development'){      
+      sendErrorDev(err, res);
+  }
+  else if(process.env.NODE_ENV.trim()==='production'){  
+    //to dont overwrite our oirginal err we will create a copy using let, 
+    // and then reassig later with teh proper error when mongo db error happend
+    let error = { ...err };
+    /*MONGO DB ERRORS*/    
+    if(error.name==='CastError'){
+      error = handleCastErrorDB(error);
+    } 
+    if(error.kind==='ObjectId'){//mongo db id is not in the mongo format
+      error = handleCastErrorDB(error);
+    } 
+    if(error.code===11000){//mongo db document already exist
+      error = handleDuplicateDB(error);
+    }
+    if(error._message==='Validation failed'){//mongo db validation fail      
+      error = handleValidationErrorDB(error);
+    }
+    /*jwt ERRORS */
+    //if token was altered manipulated
+    if(error.name ==='JsonWebTokenError') error = handleJwtError();
+    //if token expires
+    if(error.name ==='TokenExpiredError') error = handleJwtExpire();
+
+    //now we pass our custom error for mongo db handled errors    
+    sendErrorProd(error, res);
+  }
+}; </code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#handleCastErrorDB">handleCastErrorDB</a></li><li><a href="global.html#handleDuplicateDB">handleDuplicateDB</a></li><li><a href="global.html#handleJwtError">handleJwtError</a></li><li><a href="global.html#handleJwtExpire">handleJwtExpire</a></li><li><a href="global.html#handleValidationErrorDB">handleValidationErrorDB</a></li><li><a href="global.html#sendErrorDev">sendErrorDev</a></li><li><a href="global.html#sendErrorProd">sendErrorProd</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Wed Apr 23 2025 23:07:09 GMT-0400 (Bolivia Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

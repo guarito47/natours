@@ -1,5 +1,6 @@
 const fs= require('fs');
 const express = require('express');
+
 const app= new express();
 //here we are telling that we will use a middleware that is express.json that handle json data
 //because the req.body is not send it by express,only the client, but now just for demostration pourposes
@@ -126,7 +127,7 @@ app.post('/api/v1/tours', (req, res)=>{
 });
 
 
-port= 3000;
+const port= 3000;
 app.listen(port, ()=>{
-    console.log('guaritorus working on port:'+port);
+    console.log(`guaritorus working on port: ${port}`);
 });

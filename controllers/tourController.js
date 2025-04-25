@@ -1,20 +1,37 @@
+/**
+ * @file tourController.js
+ * @description handle tour CRUD operations, also retrieve tours by given filters
+ * and generate report info
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/23/2025
+ * @license MIT License
+ */
 const Tour = require('../models/tourModels');
 const APIFeatures= require('../utils/apiFeatures');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
+/**
+ * give the top 5 tours with highest rating and ordered by price from mongo DB
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
 exports.aliasTopTours=(req, res, next)=>{
 	req.query.limit = '5';
 	req.query.sort = '-ratingsAverage,price';
 	req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
-	//console.log('alias top cheap');
-	//console.log(req.query);
 	next();
 };
 
-
-
-exports.getAllTours= async(req, res)=>{
-    
-    try{        			
+/**
+ * retrieve all the tours in the mongo DB
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.getAllTours= catchAsync( async(req, res, next)=>{              			
        
     //EXECUTE THE QUERY
 		const features= new APIFeatures(Tour.find(), req.query)
@@ -24,8 +41,7 @@ exports.getAllTours= async(req, res)=>{
 			.paginate()
 		//const tours = await queryDBFields;
 		const tours = await features.mongoQueryObj;
-		//SEND THE RESPONSE
-		
+		//SEND THE RESPONSE		
     res
     .status(200)
     .json({
@@ -35,54 +51,42 @@ exports.getAllTours= async(req, res)=>{
         data: {
             tours: tours
         }
-    });
-    } catch(err){
-        res
-        .status(404)
-        .json({
-            status:'fail',        
-            message:err
-        });
-    }    
-};
+    });  
+});
 
-exports.getTour= async(req, res)=>{
-    
-    try{
-        //Tour.findOne({_id: req.params.id})
-        const tourFinded= await Tour.findById(req.params.id);
-        res.status(200).json(
-            {
-                status:'success azure update v2',
-                data: {
-                    tourFinded
-                }
-            }
-        );
-    } catch(err){
-        res
-        .status(400)
-        .json({
-            status:'fail',        
-            message:err
-        });
+
+/**
+ * retrieve a specific tour by their id from mongo DB
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.getTour = catchAsync( async(req, res, next)=>{
+    //Tour.findOne({_id: req.params.id})        
+    const tourFinded= await Tour.findById(req.params.id);
+    //we will handle the case that theres no tour means null    
+    if(!tourFinded){
+        return next(new AppError('theres no tour with that id', 404));
     }
+    res.status(200).json(
+        {
+            status:'success',
+            data: {
+                tourFinded
+            }
+        }
+    );        
+});
+
+/**
+ * creates a new tour in the mongo db
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.createTour= catchAsync( async(req, res, next)=>{
     
-};
-
-exports.createTour=async(req, res)=>{
-    //this is the old way to create new row/document in the db
-    //const newTour= new Tour({sampleDataHere});
-    //newTour.save();
-
-    try{
-    //newest way to create/store new row/document in the db
-    //directly calling a method from the model squema, while the older way
-    //creates an instance and as a document object uses the method save to do the exact task 
-    //intead to use the then() to get the result obj we upgrate to async function
-    //so we can use await to get the result in a more secuence running way
     const newTour=  await Tour.create(req.body);
-
     res
     .status(201)
     .json(
@@ -92,67 +96,66 @@ exports.createTour=async(req, res)=>{
                 tour: newTour
             } 
         }
-    );  
-    } catch(err){
-        console.log(`error create tour:${err}`);
-        res.status(400)
-        .json({
-            status:'fail',
-            message: 'invalid data sent from create tour'
-        });
-    } 
-};
+    );      
+});
 
-exports.updateTour= async (req, res)=>{
-
-    try {
+/**
+ * updates a existing tour in the mongo db
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.updateTour= catchAsync( async (req, res, next)=>{    
         // some options to add are 
         const updatedTour= await Tour.findByIdAndUpdate(req.params.id, req.body,{
             new:true,//to return the updated document
             runValidators:true //this allows to run max length, min length
-        } )
+        } );
+
+        if(!updatedTour){
+            return next(new AppError('theres no tour with that id', 404));
+        }
         res.status(200).json(
             {
-                status:'succes',
+                status:'success',
                 data: {
                     tour: updatedTour
                 }
             }
-        );
-    } catch (error) {
-        res.status(400)
-        .json({
-            status:'fail',
-            message: error
-        });
-    }
-    
-};
-exports.deleteTour= async(req, res)=>{ 
-    try {
+        );  
+});
+
+/**
+ * deletes a tour by their id in the mongo db
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.deleteTour= catchAsync( async(req, res, next)=>{     
         // some options to add are 
         const deletedTour= await Tour.findByIdAndDelete(req.params.id);
-        console.log('tour deleted');
+        //console.log('tour deleted');
+        if(!deletedTour){
+            return next(new AppError('theres no tour with that id', 404));
+        }
+        
         res.status(200).json(
             {
-                status:'succes',
+                status:'success',
                 data: {
                     tour: deletedTour
                 }
             }
-        );
-    } catch (error) {
-        res.status(400)
-        .json({
-            status:'fail',
-            message: error
-        });
-    }
-};
+        );    
+});
 
-exports.getTourStats= async(req, res)=>{
-	try {
-
+/**
+ * categorize the current tours by their difficulty , with average for each category
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.getTourStats= catchAsync(async(req, res, next)=>{	
         //agregate is a pomise that returns an agregatte object so we need to await
 		const stats= await Tour.aggregate([
             {
@@ -183,29 +186,25 @@ exports.getTourStats= async(req, res)=>{
 						/*{
 							$match: {_id: {$ne:'EASY'}}
 						}*/
-			
 		]);	
-        
         res.status(200).json(
             {
-                status:'succes',
+                status:'success',
                 data: {
                     stats: stats
                 }
             }
         );
-	} catch (error) {
-		res.status(400)
-					.json({
-							status:'fail',
-							message: error
-					});
-	}
+});
 
-};
-
-exports.getMonthlyPlan= async(req, res)=>{
-	try {//this function get the month with more tours in that month in a specific year
+/**
+ * report the month with more tours by month in a specific year
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+exports.getMonthlyPlan= catchAsync( async(req, res, next)=>{
+	//this function get the month with more tours in that month in a specific year
 		const year= req.params.year*1;//2021
 
 		const plan=  await Tour.aggregate([
@@ -253,15 +252,7 @@ exports.getMonthlyPlan= async(req, res)=>{
                 }
             }
         );
-	} catch (error) {
-		res.status(400)
-					.json({
-							status:'fail',
-							message: error
-					});
-	}
-
-};
+});
 
 
 

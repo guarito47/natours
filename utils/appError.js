@@ -9,6 +9,8 @@ class AppError extends Error {
     //if not that means is 5.. code then is a server error, so we sned error text
     this.status= `${statusCode}`.startsWith('4')?'fail':'error';
     //to handle as well operational errors, like dont send correct fields, programing errors, bugs
+    //all the error that we can spect means made from our code, and this paramneter will bne used
+    //at the time to show error details when its on development stage or in prodcution (less info)
     this.isOperational= true;
     //to assign the stackTrace (path and line of code where trigger de error)
     Error.captureStackTrace(this, this.constructor);

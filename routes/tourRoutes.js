@@ -1,26 +1,18 @@
+/**
+ * @file tourRoutes.js
+ * @description handle all tour paths under /api/v1/tours for tour CRUD operations 
+ * also stadistics and filtering routes, and routes for tours in azure mysql DB
+ * @author Edwin Guarachi
+ * @created 4/22/2025
+ * @lastUpdate 4/23/2025
+ * @license MIT License
+ */
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const tourController4MySql = require('../controllers/tourController4Mysql');
-//or using decontruction to get all the functions
-//const {getAllTours, ..}
+const authController = require('../controllers/authController');
+
 const toursRouter= express.Router();
-
-
-//3, ROUTES
-//old way to handle route
-//app.get('/api/v1/tours', getAllTours);
-//app.post('/api/v1/tours', createTour);
-//app.get('/api/v1/tours/:id',getTour );
-//app.patch('/api/v1/tours/:id', updateTour);
-//app.delete('/api/v1/tours/:id',deleteTour);
-//new way to handle routes
-
-//toursRouter.param('id', tourController.checkId);
-
-//to handle mask urls in this case top-5-cheap, that wants to show the 5 most rated and cheapest
-// tours available, to do that we will set the url to /tours?limit=5&sort=-ratingsAverage,price
-//-rating means descending(major to minor), price ascending (minor to major)
-//to set this url we need a middleware we will call 
 
 toursRouter
     .route('/top-5-cheap')
@@ -35,23 +27,26 @@ toursRouter
 
 toursRouter
     .route('/')
-    .get(tourController.getAllTours)
-    //.post(tourController.createTour); 
-    .post(tourController4MySql.createTour); 
+    .get(authController.protect,  tourController.getAllTours)
+    .post(tourController.createTour);     
 
+toursRouter
+    .route('/:id')
+    .get(tourController.getTour)    
+    .patch(tourController.updateTour)
+    .delete(tourController.deleteTour);
+
+///////*MYSQL azure database natours *///////
 toursRouter
     .route('/postTour')    
     .post(tourController4MySql.createTour); 
 
 toursRouter
     .route('/getAllTours')    
-    .get(tourController4MySql.getAllTours);   
+    .get(tourController4MySql.getAllTours);
 
 toursRouter
-    .route('/:id')
-    //.get(tourController.getTour)
-    .get(tourController4MySql.getTour)
-    .patch(tourController.updateTour)
-    .delete(tourController.deleteTour);
+    .route('/getTour/:id')    
+    .get(tourController4MySql.getTour);
 
 module.exports= toursRouter;
