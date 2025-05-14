@@ -35,15 +35,23 @@ const azGetSecret= require('../utils/azureKeyVault');
 });*/
 
 
-const signToken =  async(userId)=>{  
+const signToken2 =  async(userId)=>{  
 
-  const jwts =await azGetSecret(process.env.KEY_VAULT_SECRET_JWT);
-  const token = jwt.sign( { id:userId}, jwts.value, { expiresIn: process.env.JWT_EXPIRES_IN});
-  return token;  
+  try{
+    const jwts =await azGetSecret(process.env.KEY_VAULT_SECRET_JWT);
+    logger.error(`sign token2 jwts: ${jwts.value}`);
+    const token = jwt.sign( { id:userId}, jwts.value, { expiresIn: process.env.JWT_EXPIRES_IN});
+    logger.error(`sign token2 token: ${token}`);
+    return token;
+  } catch(error){
+    logger.error('error getting secret from azure key vault');
+    logger.error(error);
+  }
+    
 };
 
 
-//const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
+const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
 
 /**
  * creates a JWT token with expiration date, also set as cookie to the client, 
@@ -52,14 +60,15 @@ const signToken =  async(userId)=>{
  * @param {Object} res the global response to return to the client
  */
 const createSendToken= async (newUser, statusCode, res)=>{  
-  //const token= signToken(newUser._id.valueOf());
+  const token= signToken(newUser._id.valueOf());
   //console.log('continue after sign token', token);
-  let token;
+  let token2;
   try {
-     token= await signToken(newUser._id.valueOf());
+     token2= await signToken2(newUser._id.valueOf());
+     logger.error(`token from keyvault: ${token2}`);
 
   } catch (error) {
-    logger.error(new AppError('fail to create token', 401));
+    logger.error(`error from keyvault: ${error}`);
     console.log(error);
   }  
 

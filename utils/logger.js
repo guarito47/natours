@@ -8,14 +8,17 @@
  */
 const {createLogger, format, transports, loggers} = require ('winston');
 const winston = require('winston');
+const dotEnv = require('dotenv');
 
 const {combine, timestamp, json, prettyPrint, errors, colorize, printf, uncolorize}= format;
 const { Logtail } = require("@logtail/node");
 const { LogtailTransport } = require("@logtail/winston");
 
+dotEnv.config({path: './config.env'});
 let logger=null;
 
 // Create a Logtail client to store logs in better stack service
+
 const logtail = new Logtail(process.env.BETTERSTACK_TOKEN, {
   endpoint: process.env.BETTERSTACK_HOST,
 });

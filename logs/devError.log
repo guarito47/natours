@@ -4,3 +4,16 @@
 [08:05:2025 10:34:40] [error]: Incorrect email or password
 [08:05:2025 11:16:17] [error]: Incorrect email or password
 [13:05:2025 22:11:18] [error]: The user that belongs this token, no longer exist
+[14:05:2025 18:31:55] [error]: Incorrect email or password
+[14:05:2025 19:12:32] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 19:17:48] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 19:18:12] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 19:19:21] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 19:20:30] [error]: Incorrect email or password
+[14:05:2025 19:20:42] [error]: sign token2 jwts: [object Object]
+[14:05:2025 19:20:42] [error]: sign token2 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDg0MiwiZXhwIjoxNzU1MDQwODQyfQ.PJ0w6qgYQHix8URRnhyUtnqaW19mq9nRNwToC5Y2CZo
+[14:05:2025 19:20:42] [error]: token from keyvault: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDg0MiwiZXhwIjoxNzU1MDQwODQyfQ.PJ0w6qgYQHix8URRnhyUtnqaW19mq9nRNwToC5Y2CZo
+[14:05:2025 19:22:34] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 19:22:45] [error]: sign token2 jwts: guarito-Ultra-Secret-Key-encrypt
+[14:05:2025 19:22:45] [error]: sign token2 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDk2NSwiZXhwIjoxNzU1MDQwOTY1fQ.KNTD3Cc5MmOEns_DIyDkHXUlnvLgExhhZlozUrWqCmc
+[14:05:2025 19:22:45] [error]: token from keyvault: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDk2NSwiZXhwIjoxNzU1MDQwOTY1fQ.KNTD3Cc5MmOEns_DIyDkHXUlnvLgExhhZlozUrWqCmc

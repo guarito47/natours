@@ -10,6 +10,7 @@ const dotEnv = require('dotenv');
 const mongoose = require('mongoose');
 const mySqlPool= require('./config/dbMysql');
 const azGetSecret= require('./utils/azureKeyVault');
+const logger = require('./utils/logger');
 //const logger = require('./utils/logger');
 
 //and all the rest means syncronus we need to handle here like division/0 
@@ -30,17 +31,19 @@ const app = require('./app');
 
 azGetSecret(process.env.KEY_VAULT_SECRET_DB)
 .then((secret)=>{
-  mongoose.connect(process.env.DATABASE.replace('<PASSWORD>', secret.value), { })
-  .then(()=>{ console.log('mongo db connection success');});
+  logger.error(`az get secret for db mongo: ${secret.value}`);
+  //mongoose.connect(process.env.DATABASE.replace('<PASSWORD>', secret.value), { })
+  //.then(()=>{ console.log('mongo db connection success');});
 }).catch((error)=>{
-  console.log('error getting secret from azure key vault');
-  console.log(error);
+  logger.error(`az get secret error for db mongo: ${error}`);
+  //console.log('error getting secret from azure key vault');
+  //console.log(error);
 });
 
-//const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-//mongoose.connect(BD, { 
-//}).then(()=>{ console.log('moongo db connection success');});
+mongoose.connect(BD, { 
+}).then(()=>{ console.log('moongo db connection success');});
 
 /*mySqlPool.query('SELECT 1001')
          .then(()=>{
