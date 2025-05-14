@@ -90,29 +90,78 @@ const tourSchema = new mongoose.Schema({
     secretTour: {
       type: Boolean,
       default: false
-    } 
-  },
+    },
+    startLocation: {//the starting location that will be used for the map
+          // GeoJSON
+          type: {
+            type: String,
+            default: 'Point',
+            enum: ['Point']
+          },
+          coordinates: [Number],
+          address: String,
+          description: String
+    },
+    locations: [//are the locations that we will visit in the tour
+      {
+            type: {
+              type: String,
+              default: 'Point',
+              enum: ['Point']
+            },
+            coordinates: [Number],
+            address: String,
+            description: String,
+            day: Number
+          }
+    ],
+    guides: [
+          {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User'
+          }
+    ]
+  }, 
   {//this object means that we want to see in the json output the field/virtual field that we calculate 
   // as part of the collection, IMPORTANT we can query because is virtual doesnt exit in the db
     toJSON:{virtuals: true},
     toObject:{virtuals: true}//also for handling as object
+  }
+);
+
+  // this is a virtual field that we will use to populate the reviews,
+  // we will use the populate method to get the reviews of each tour
+  // works like a reference but we will not store the reviews in the tour
+  tourSchema.virtual('reviews', {
+    ref: 'Review',// the document model name where to look at
+    foreignField: 'tour',// the field that we will use to search the reviews 
+    localField: '_id'//our local tour id to compare with the foreign field
   });
 
   //a virtual property of a defined squema y a field that can be calculated from the fields like duration in weeks
   tourSchema.virtual('durationWeeks').get(
     function(){//we use a real function because we will handle the parameters of pour object by using this.
-      return this.duration/7 
-    });
+      return this.duration / 7; 
+  });
 
     //DOCUEMNT MIDDLEWARE as we know triggers, runs everytime ocurrPRE MEANS  BEFORE this callings: 
     // save(), create() , NOT working for insertMany() this time a cool example before save a new tour
     //we will have a field called slug so we can handle in the url, to create a slug we use slugify
     //and as a express midleware wqe next to call next
     //THIS refers to the current document
-    tourSchema.pre('save', function(next){
+  tourSchema.pre('save', function(next){
       this.slug= slugify(this.name, {lower:true});
       next();
-    });
+  });
+
+
+//this way is to embed the user info into the tour, but we will use the reference
+// tourSchema.pre('save', async function(next) {
+//   const guidesPromises = this.guides.map(async id => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
+
     //QUERY MIDDLEWARE, by example we have secret tours that only for vip members , so we cant show to public members
     // instead we will pre filter the collection before run the find that trigger this midleware
     //in this case THIA refers a query object, we will improive the code below
@@ -129,6 +178,18 @@ const tourSchema = new mongoose.Schema({
       next();
     });
 
+    // this is to populate the guides field with the user info, we will use the populate method
+    // path refers to wich object ids wants to populate, select -__v -passwordChangedAt
+    //  means that we dont want to show this fields
+    tourSchema.pre(/^find/, function(next) {
+      this.populate({
+        path: 'guides',
+        select: '-__v -passwordChangedAt'
+      });
+
+      next();
+    });
+    
     tourSchema.post(/^find/, function(docs, next){
       console.log(`query took ${Date.now()-this.start} miliseconds`);
       //console.log(docs);

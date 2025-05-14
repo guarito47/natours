@@ -7,6 +7,7 @@
  * @lastUpdate 4/23/2025
  * @license MIT License
  */
+const crypto = require('crypto');
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
@@ -30,7 +31,7 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email']
   },
-  photo: String,
+  photo: String, 
   role: {
     type: String,
     enum: ['user', 'guide', 'lead-guide', 'admin'],
@@ -55,10 +56,17 @@ const userSchema = new mongoose.Schema({
 
   },
   passwordChangedAt: Date,
-
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false
+  } 
 });
 /**
 * a mongo middleware that triggers a pre saving function where we are encrypting the passwords
+* before saving in the db, so we dont need to code outhere like a store procedure
 * @param {string} save the built in mongo operation to call on pre statement 
 * @param {Object} next the global object to continue the next middleware
 */
@@ -74,6 +82,26 @@ userSchema.pre('save', async function(next){
   next();
    
 });
+
+//this middleware is execute before making save operation, we will validate is its a password saving operation
+//if its the case we willl set password change at field calculated in our model and not in the code
+userSchema.pre('save', function(next) {
+  //if in the payload dont apeears the password and is not the new document creation we dont need to to nothing
+  if (!this.isModified('password') || this.isNew) return next();
+//but if appears a new password in the payload then we will save a new pasw
+// so we need to set the passwordChangedAt as well, giving 1 sec delay to dont be in conflict with JWT creating date
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+//to dont process users inactives (deleteds) we need to skip the ones that are inactive(false)
+userSchema.pre(/^find/, function(next) {
+  // this points to the current query
+  //this will filter first all inactive user NotEqual to false after any find operation 
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 
 /**
  * this function creates a Json Web Token with given user Id and Secret for token creation
@@ -102,6 +130,26 @@ userSchema.methods.changedPswAfter = function (JWTTimestamp){
   }
   return false;
 }
+
+
+//the passwsord reset token is not a JWT token is a random string but at the same time need to be 
+//cryptographically strong as the password hash se wi will use a simple random bytes function from
+//the node js built-in crypto module
+userSchema.methods.createPasswordResetToken = function() {
+  //32 is the  number of characters, and 'hex' to convert to an hex to be letters numbers special characters
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  //now we encrypt the random string
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  console.log({ resetToken }, this.passwordResetToken);
+  //we are giving 10 mins to change their password number min x sec x milisec to sec
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+  //IMPORTANT: we are sending unincrypted token bye email, the encrypted version is only for the DB 
+  return resetToken;
+};
 
 const User = mongoose.model('User', userSchema);
 

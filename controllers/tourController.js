@@ -11,6 +11,7 @@ const Tour = require('../models/tourModels');
 const APIFeatures= require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const factory = require('./handlerFactory');
 
 /**
  * give the top 5 tours with highest rating and ordered by price from mongo DB
@@ -63,7 +64,13 @@ exports.getAllTours= catchAsync( async(req, res, next)=>{
  */
 exports.getTour = catchAsync( async(req, res, next)=>{
     //Tour.findOne({_id: req.params.id})        
-    const tourFinded= await Tour.findById(req.params.id);
+    //we can use the populate method to get the guides info, as we have the reference in the tour model
+    const tourFinded= await Tour.findById(req.params.id).populate('reviews');
+    //we will move this populate method to their proper tour model midleware funtion
+    /*
+    .populate({
+        path:'guides', 
+        select:'-__v -passwordChangedAt -passwordResetToken -passwordResetExpires -active'});*/
     //we will handle the case that theres no tour means null    
     if(!tourFinded){
         return next(new AppError('theres no tour with that id', 404));
@@ -131,7 +138,10 @@ exports.updateTour= catchAsync( async (req, res, next)=>{
  * @param {Object} res the global response to return to the client
  * @param {Object} next the global object to continue the next middleware
  */
-exports.deleteTour= catchAsync( async(req, res, next)=>{     
+//instead to use a specific function for each crud operation fo each model we use a global function
+// and we pass the model as a parameter 
+exports.deleteTour= factory.deleteOne(Tour);
+/*exports.deleteTour= catchAsync( async(req, res, next)=>{     
         // some options to add are 
         const deletedTour= await Tour.findByIdAndDelete(req.params.id);
         //console.log('tour deleted');
@@ -148,7 +158,7 @@ exports.deleteTour= catchAsync( async(req, res, next)=>{
             }
         );    
 });
-
+*/
 /**
  * categorize the current tours by their difficulty , with average for each category
  * @param {Object} req the global client request to the server

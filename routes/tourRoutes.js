@@ -11,8 +11,13 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const tourController4MySql = require('../controllers/tourController4Mysql');
 const authController = require('../controllers/authController');
+const reviewRouter = require('./reviewRoutes');
 
 const toursRouter= express.Router();
+
+//as we have another main branch from a branch tour we need to tell express router to use
+//this child branch from the way where appears :tourId/reviews
+toursRouter.use('/:tourId/reviews', reviewRouter);
 
 toursRouter
     .route('/top-5-cheap')
@@ -34,7 +39,10 @@ toursRouter
     .route('/:id')
     .get(tourController.getTour)    
     .patch(tourController.updateTour)
-    .delete(tourController.deleteTour);
+    .delete(
+        authController.protect, 
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.deleteTour);
 
 ///////*MYSQL azure database natours *///////
 toursRouter
