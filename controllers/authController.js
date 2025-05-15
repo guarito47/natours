@@ -35,7 +35,7 @@ const azGetSecret= require('../utils/azureKeyVault');
 });*/
 
 
-const signToken2 =  async(userId)=>{  
+const signToken =  async(userId)=>{  
 
   try{
     const jwts =await azGetSecret(process.env.KEY_VAULT_SECRET_JWT);
@@ -51,7 +51,7 @@ const signToken2 =  async(userId)=>{
 };
 
 
-const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
+//const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
 
 /**
  * creates a JWT token with expiration date, also set as cookie to the client, 
@@ -62,7 +62,7 @@ const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { e
 const createSendToken= async (newUser, statusCode, res)=>{  
   const token= signToken(newUser._id.valueOf());
   //console.log('continue after sign token', token);
-  let token2;
+  /*let token2;
   try {
      token2= await signToken2(newUser._id.valueOf());
      logger.error(`token from keyvault: ${token2}`);
@@ -70,7 +70,7 @@ const createSendToken= async (newUser, statusCode, res)=>{
   } catch (error) {
     logger.error(`error from keyvault: ${error}`);
     console.log(error);
-  }  
+  }  */
 
   const cookieOptions= {
     //cookie value is 90 days we need to convert to miliseconds where 24 hours 60 min, 60 sec x 1000 to be miliseconds  
