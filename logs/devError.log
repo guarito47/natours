@@ -17,3 +17,8 @@
 [14:05:2025 19:22:45] [error]: sign token2 jwts: guarito-Ultra-Secret-Key-encrypt
 [14:05:2025 19:22:45] [error]: sign token2 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDk2NSwiZXhwIjoxNzU1MDQwOTY1fQ.KNTD3Cc5MmOEns_DIyDkHXUlnvLgExhhZlozUrWqCmc
 [14:05:2025 19:22:45] [error]: token from keyvault: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI2NDk2NSwiZXhwIjoxNzU1MDQwOTY1fQ.KNTD3Cc5MmOEns_DIyDkHXUlnvLgExhhZlozUrWqCmc
+[14:05:2025 20:58:29] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 20:58:44] [error]: sign token2 jwts: guarito-Ultra-Secret-Key-encrypt
+[14:05:2025 20:58:44] [error]: sign token2 token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MWI2NzkzMmE5M2E4YmViM2ZiYjUzZSIsImlhdCI6MTc0NzI3MDcyNCwiZXhwIjoxNzU1MDQ2NzI0fQ.rI80ovn-4OH7cIFzMdGNERiT_wC2fpxJlhR5eeQ5hz0
+[14:05:2025 21:01:46] [error]: az get secret for db mongo: VIOl210s318
+[14:05:2025 21:03:23] [error]: az get secret for db mongo: VIOl210s318

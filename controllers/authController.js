@@ -60,17 +60,17 @@ const signToken =  async(userId)=>{
  * @param {Object} res the global response to return to the client
  */
 const createSendToken= async (newUser, statusCode, res)=>{  
-  const token= signToken(newUser._id.valueOf());
-  //console.log('continue after sign token', token);
-  /*let token2;
+  //const token= signToken(newUser._id.valueOf());
+  
+  let token;
   try {
-     token2= await signToken2(newUser._id.valueOf());
-     logger.error(`token from keyvault: ${token2}`);
+     token= await signToken(newUser._id.valueOf());
+     logger.error(`token from keyvault: ${token}`);
 
   } catch (error) {
     logger.error(`error from keyvault: ${error}`);
     console.log(error);
-  }  */
+  }  
 
   const cookieOptions= {
     //cookie value is 90 days we need to convert to miliseconds where 24 hours 60 min, 60 sec x 1000 to be miliseconds  
