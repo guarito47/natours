@@ -32,15 +32,13 @@ const app = require('./app');
 azGetSecret(process.env.KEY_VAULT_SECRET_DB)
 .then((secret)=>{
   logger.error(`az get secret for db mongo: ${secret.value}`);
-  //mongoose.connect(process.env.DATABASE.replace('<PASSWORD>', secret.value), { })
-  //.then(()=>{ console.log('mongo db connection success');});
+  mongoose.connect(process.env.DATABASE.replace('<PASSWORD>', secret.value), { })
+  .then(()=>{ console.log('mongo db connection success');});
 }).catch((error)=>{
   logger.error(`az get secret error for db mongo: ${error}`);
-  //console.log('error getting secret from azure key vault');
-  //console.log(error);
 });
 
-const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+//const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
 mongoose.connect(BD, { 
 }).then(()=>{ console.log('moongo db connection success');});
