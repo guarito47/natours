@@ -40,8 +40,8 @@ azGetSecret(process.env.KEY_VAULT_SECRET_DB)
 
 //const BD= process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-mongoose.connect(BD, { 
-}).then(()=>{ console.log('moongo db connection success');});
+//mongoose.connect(BD, { 
+//}).then(()=>{ console.log('moongo db connection success');});
 
 /*mySqlPool.query('SELECT 1001')
          .then(()=>{
