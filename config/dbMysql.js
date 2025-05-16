@@ -1,5 +1,5 @@
 const mysql = require('mysql2/promise');
-const fs = require('fs');
+//const fs = require('fs');
 
 const mySqlPool= mysql.createPool({
   host: 'natoursmysql.mysql.database.azure.com',
