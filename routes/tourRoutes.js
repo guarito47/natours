@@ -97,6 +97,18 @@ const toursRouter= express.Router();
  *   description: The Tours managing API
  */
 
+///////*MYSQL azure database natours rollback *///////
+toursRouter
+    .route('/postTour')    
+    .post(tourController4MySql.createTour); 
+
+toursRouter
+    .route('/getAllTours')    
+    .get(tourController4MySql.getAllTours);
+
+toursRouter
+    .route('/getTour/:id')    
+    .get(tourController4MySql.getTour);
 
 //as we have another main branch from a branch tour we need to tell express router to use
 //this child branch from the way where appears :tourId/reviews
@@ -141,17 +153,6 @@ toursRouter
         authController.restrictTo('admin', 'lead-guide'),
         tourController.deleteTour);
 
-///////*MYSQL azure database natours rollback *///////
-toursRouter
-    .route('/postTour')    
-    .post(tourController4MySql.createTour); 
 
-toursRouter
-    .route('/getAllTours')    
-    .get(tourController4MySql.getAllTours);
-
-toursRouter
-    .route('/getTour/:id')    
-    .get(tourController4MySql.getTour);
 
 module.exports= toursRouter;

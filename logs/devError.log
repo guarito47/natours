@@ -118,3 +118,5 @@
 [16:05:2025 09:50:12] [error]: az get secret for db mongo: VIOl210s318
 [16:05:2025 09:55:28] [error]: mysql connection success
 [16:05:2025 09:55:31] [error]: az get secret for db mongo: VIOl210s318
+[16:05:2025 10:12:11] [error]: mysql connection success
+[16:05:2025 10:12:17] [error]: az get secret for db mongo: VIOl210s318
