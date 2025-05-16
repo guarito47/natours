@@ -6,7 +6,7 @@
  * @lastUpdate 4/23/2025
  * @license MIT License
  */
-const Tour = require('../models/tourModels');
+//const Tour = require('../models/tourModels');
 const mySqlDb = require("../config/dbMysql");
 
 /**
@@ -20,6 +20,7 @@ exports.getAllTours= async(req, res)=>{
         //Tour.findOne({_id: req.params.id})
         
         //const [rows]= await mySqlDb.query('SELECT * FROM tour')
+        console.log('join mysql local get all tours');
         const data= await mySqlDb.query('SELECT * FROM tour');
 
         res.status(200).json(

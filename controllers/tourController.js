@@ -34,7 +34,7 @@ exports.aliasTopTours=(req, res, next)=>{
  */
 exports.getAllTours= catchAsync( async(req, res, next)=>{              			
        
-    //EXECUTE THE QUERY
+    //EXECUTE THE QUERY    
 		const features= new APIFeatures(Tour.find(), req.query)
 			.filter()
 			.sort()
@@ -46,7 +46,7 @@ exports.getAllTours= catchAsync( async(req, res, next)=>{
     res
     .status(200)
     .json({
-        status:'success v418pm',
+        status:'success',
     
         results: tours.length,
         data: {
@@ -65,6 +65,7 @@ exports.getAllTours= catchAsync( async(req, res, next)=>{
 exports.getTour = catchAsync( async(req, res, next)=>{
     //Tour.findOne({_id: req.params.id})        
     //we can use the populate method to get the guides info, as we have the reference in the tour model
+    console.log('join from mongo gettour');
     const tourFinded= await Tour.findById(req.params.id).populate('reviews');
     //we will move this populate method to their proper tour model midleware funtion
     /*
