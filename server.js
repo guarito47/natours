@@ -11,7 +11,6 @@ const mongoose = require('mongoose');
 const mySqlPool= require('./config/dbMysql');
 const azGetSecret= require('./utils/azureKeyVault');
 const logger = require('./utils/logger');
-//const logger = require('./utils/logger');
 
 //and all the rest means syncronus we need to handle here like division/0 
 

@@ -14,13 +14,17 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const winston = require('winston/lib/winston/config');
+const swaggerUI = require('swagger-ui-express');
+//const swaggerJsdoc = require('swagger-jsdoc');
 const toursRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/userRoutes');
 const reviewsRouter = require('./routes/reviewRoutes');
 const AppError= require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControler');
+const specs = require('./utils/swagger/swagger');
+const APIFeatures = require('./utils/apiFeatures');
 //const logger=require('./utils/logger');
-const winston = require('winston/lib/winston/config');
 
 // eslint-disable-next-line new-cap
 const app = new express();
@@ -37,8 +41,6 @@ if (process.env.NODE_ENV === 'development'){
   app.use(morgan('dev'));
 }
 
-
-
 //ASSIGN GLOBAL MIDDLEWARES TO OUR APP
 
 //here we are configuring our rateLimit to prevent brute force attacks, limiting request from same ip
@@ -48,11 +50,14 @@ const limiter = rateLimit({
   message: 'Too many request from this ip, please try again in 1 hour'
 
 });
-app.use('/api',limiter);
 
+app.use('/api',limiter);
 //body parser, to read data from body into req.body, also as parameter the limit size of the body
 //in order to prevent attacks with big body data size, trying to down the server
 app.use(express.json({limit: '10kb'}));
+
+//setting swagger ui, (route, middleware, and swagger.json file)
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
 
 // DATA SANITIZATION agains NoSQl query injection, like {"email": {"$gt":""}} that match any email
 //this mongosanitize middleware removes $ character and another special characters that mongo indetifies as operators
