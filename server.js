@@ -42,12 +42,14 @@ azGetSecret(process.env.KEY_VAULT_SECRET_DB)
 //mongoose.connect(BD, { 
 //}).then(()=>{ console.log('moongo db connection success');});
 
-/*mySqlPool.query('SELECT 1001')
+mySqlPool.query('SELECT 1001')
          .then(()=>{
+  logger.error('mysql connection success');
   console.log('conecction to mysql succeeded');
 }).catch((error)=>{
+  logger.error(`error mysql connection:${error}`);
   console.log(error);
-});*/
+});
 
 const port = process.env.PORT || 8080;
 const server=app.listen(port, ()=>{
