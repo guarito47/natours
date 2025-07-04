@@ -132,3 +132,40 @@
 [16:05:2025 09:55:31] [error]: az get secret for db mongo: VIOl210s318
 [16:05:2025 10:12:11] [error]: mysql connection success
 [16:05:2025 10:12:17] [error]: az get secret for db mongo: VIOl210s318
+[16:05:2025 11:45:17] [error]: mysql connection success
+[16:05:2025 11:45:25] [error]: az get secret for db mongo: VIOl210s318
+[16:05:2025 14:02:16] [error]: mysql connection success
+[16:05:2025 14:02:32] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 13:59:23] [error]: error mysql connection:Error: connect ETIMEDOUT
+[19:05:2025 13:59:26] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 14:05:31] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 14:05:36] [error]: error mysql connection:Error: connect ETIMEDOUT
+[26:05:2025 10:30:34] [error]: error mysql connection:Error: connect ETIMEDOUT
+[26:05:2025 10:30:37] [error]: az get secret error for db mongo: RestError: The subscription associated with this vault has been disabled.
+Vault: natoursKeys;location=eastus
+[29:05:2025 09:32:35] [error]: error mysql connection:Error: getaddrinfo ENOTFOUND natoursmysql.mysql.database.azure.com
+[29:05:2025 09:32:41] [error]: az get secret error for db mongo: RestError: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:51:58] [error]: error getting secret from azure key vault
+[29:05:2025 11:51:58] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:51:58] [error]: token from keyvault: undefined
+[29:05:2025 11:59:16] [error]: error getting secret from azure key vault
+[29:05:2025 11:59:16] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:59:35] [error]: error getting secret from azure key vault
+[29:05:2025 11:59:35] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 12:20:20] [error]: Incorrect email or password
+[16:06:2025 16:10:29] [error]: Incorrect email or password
+[17:06:2025 11:06:41] [warn]: You are not logged in! please log in first
+[17:06:2025 11:07:03] [warn]: You are not logged in! please log in first
+[17:06:2025 11:07:08] [warn]: You are not logged in! please log in first
+[17:06:2025 12:23:48] [warn]: You are not logged in! please log in first
+[17:06:2025 12:29:47] [warn]: You are not logged in! please log in first
+[03:07:2025 11:14:42] [error]: Incorrect email or password
+[03:07:2025 12:10:42] [warn]: You are not logged in! please log in first
+[03:07:2025 19:01:47] [error]: Incorrect email or password
+[03:07:2025 20:00:33] [error]: Incorrect email or password
+[03:07:2025 22:04:34] [warn]: Please provide email and password!
+[03:07:2025 22:04:51] [warn]: Please provide email and password!
+[03:07:2025 22:05:00] [warn]: Please provide email and password!
+[03:07:2025 22:33:07] [error]: Incorrect email or password
+[03:07:2025 22:33:15] [error]: Incorrect email or password
+[03:07:2025 22:34:23] [error]: Incorrect email or password

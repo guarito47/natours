@@ -95,7 +95,6 @@ const sendErrorProd=(err, res)=>{
   }
 };
 
-
 /**
  * main error hub that routes development error or production errors for mongo and jwt errors 
  * @param {Object} err the global error object

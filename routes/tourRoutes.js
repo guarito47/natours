@@ -11,9 +11,19 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const tourController4MySql = require('../controllers/tourController4Mysql');
 const authController = require('../controllers/authController');
+//const reviewController = require('../controllers/reviewController');
 const reviewRouter = require('./reviewRoutes');
+const Tour = require('../models/tourModels');
 
 const toursRouter= express.Router();
+/* this is now splitted in their own reviews router
+toursRouter
+    .route('/:tourId/reviews')
+    .post(authController.protect, authController.restrictTo('user'), reviewController.createReview);
+*/
+//as we have another main branch from a tour branch we need to tell express router to use
+//this child branch from the way where appears :tourId/reviews as we did in app.js
+toursRouter.use('/:tourId/reviews', reviewRouter);
 
 /**
  * @swagger
@@ -110,9 +120,6 @@ toursRouter
     .route('/getTour/:id')    
     .get(tourController4MySql.getTour);
 
-//as we have another main branch from a branch tour we need to tell express router to use
-//this child branch from the way where appears :tourId/reviews
-toursRouter.use('/:tourId/reviews', reviewRouter);
 
 toursRouter
     .route('/top-5-cheap')
@@ -123,7 +130,27 @@ toursRouter
     .get(tourController.getTourStats);
 toursRouter
     .route('/monthly-plan/:year')
-    .get(tourController.getMonthlyPlan);
+    .get(
+        authController.protect, 
+        authController.restrictTo('admin', 'lead-guide', 'guide'),
+        tourController.getMonthlyPlan
+    );
+
+toursRouter
+
+/*to get tours within a distance from a certain point
+by example the tours within 100 miles(distance) from the center point 40.7128,-74.0060 (my home)
+and unit is the unit of measurement, can be 'mi' for miles or 'km' for kilometers
+we can doit with query params like this: tours-within?distance=100&center=40.7128,-74.0060&unit=mi
+or better yet with path params like this: /tours-within/100/center/40.7128,-74.0060/unit/mi  */
+
+    .route('/tours-within/:distance/center/:latlng/unit/:unit')
+    .get(tourController.getToursWithin);
+
+// to get tours from a certain tour
+toursRouter
+    .route('/distances/:latlng/unit/:unit')
+    .get(tourController.getDistances);
 
 /**
  * @swagger
@@ -141,18 +168,27 @@ toursRouter
  */
 toursRouter
     .route('/')
-    .get(authController.protect,  tourController.getAllTours)
-    .post(tourController.createTour);     
+    //.get(authController.protect,  tourController.getAllTours)
+    .get(tourController.getAllTours)//we want to expose this info to everyone so we disable to authenticate
+    .post(//but onbly admins and lead-guides can create a tour
+        authController.protect, 
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.createTour
+    );     
 
 toursRouter
     .route('/:id')
-    .get(tourController.getTour)    
-    .patch(tourController.updateTour)
+    .get(tourController.getTour) //we want to expose this info to everyone so we disable to authenticate   
+    .patch(//but onbly admins and lead-guides can update or delete a tour
+        authController.protect, 
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.updateTour
+    )
     .delete(
         authController.protect, 
         authController.restrictTo('admin', 'lead-guide'),
-        tourController.deleteTour);
-
+        tourController.deleteTour
+    );
 
 
 module.exports= toursRouter;

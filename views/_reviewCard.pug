@@ -1,0 +1,15 @@
+
+mixin reviewCard(review)
+  .reviews__card
+    .reviews__avatar
+      img.reviews__avatar-img(src=`/img/users/${review.user.photo}`, alt=`${review.user.name}`)
+      h6.reviews__user= review.user.name
+    p.reviews__text= review.review
+    .reviews__rating
+      //-while the rating is greater than the printing start iteration we will show color enabled
+      each star in [1,2,3,4,5]
+        //- as the same for pictureImage class we need to change the class name of the start icon, 
+        //- so because we cant modify as '.' we will do as a property and using template string 
+        //- svg.reviews__star.reviews__star--active use(xlink:href='/img/icons.svg#icon-star')
+        svg.reviews__star(class=`reviews__star--${review.rating>=star ?'active':'inactive'}`)
+          use(xlink:href='/img/icons.svg#icon-star')

@@ -8,17 +8,11 @@
  * @license MIT License
  */
 const Tour = require('../models/tourModels');
-const APIFeatures= require('../utils/apiFeatures');
 const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+//const APIFeatures= require('../utils/apiFeatures');
+const AppError = require('../utils/appError');
 
-/**
- * give the top 5 tours with highest rating and ordered by price from mongo DB
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
 exports.aliasTopTours=(req, res, next)=>{
 	req.query.limit = '5';
 	req.query.sort = '-ratingsAverage,price';
@@ -26,146 +20,18 @@ exports.aliasTopTours=(req, res, next)=>{
 	next();
 };
 
-/**
- * retrieve all the tours in the mongo DB
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
-exports.getAllTours= catchAsync( async(req, res, next)=>{              			
-       
-    //EXECUTE THE QUERY    
-		const features= new APIFeatures(Tour.find(), req.query)
-			.filter()
-			.sort()
-			.limitFields()
-			.paginate()
-		//const tours = await queryDBFields;
-		const tours = await features.mongoQueryObj;
-		//SEND THE RESPONSE		
-    res
-    .status(200)
-    .json({
-        status:'success',
-    
-        results: tours.length,
-        data: {
-            tours: tours
-        }
-    });  
-});
+exports.getAllTours= factory.getAll(Tour);
 
+exports.getTour = factory.getOne(Tour, {path:'reviews'});
 
-/**
- * retrieve a specific tour by their id from mongo DB
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
-exports.getTour = catchAsync( async(req, res, next)=>{
-    //Tour.findOne({_id: req.params.id})        
-    //we can use the populate method to get the guides info, as we have the reference in the tour model
-    console.log('join from mongo gettour');
-    const tourFinded= await Tour.findById(req.params.id).populate('reviews');
-    //we will move this populate method to their proper tour model midleware funtion
-    /*
-    .populate({
-        path:'guides', 
-        select:'-__v -passwordChangedAt -passwordResetToken -passwordResetExpires -active'});*/
-    //we will handle the case that theres no tour means null    
-    if(!tourFinded){
-        return next(new AppError('theres no tour with that id', 404));
-    }
-    res.status(200).json(
-        {
-            status:'success',
-            data: {
-                tourFinded
-            }
-        }
-    );        
-});
+exports.createTour= factory.createOne(Tour);
 
-/**
- * creates a new tour in the mongo db
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
-exports.createTour= catchAsync( async(req, res, next)=>{
-    
-    const newTour=  await Tour.create(req.body);
-    res
-    .status(201)
-    .json(
-        {
-            status:'success',
-            data:{
-                tour: newTour
-            } 
-        }
-    );      
-});
+exports.updateTour= factory.updateOne(Tour);
 
-/**
- * updates a existing tour in the mongo db
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
-exports.updateTour= catchAsync( async (req, res, next)=>{    
-        // some options to add are 
-        const updatedTour= await Tour.findByIdAndUpdate(req.params.id, req.body,{
-            new:true,//to return the updated document
-            runValidators:true //this allows to run max length, min length
-        } );
-
-        if(!updatedTour){
-            return next(new AppError('theres no tour with that id', 404));
-        }
-        res.status(200).json(
-            {
-                status:'success',
-                data: {
-                    tour: updatedTour
-                }
-            }
-        );  
-});
-
-/**
- * deletes a tour by their id in the mongo db
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
 //instead to use a specific function for each crud operation fo each model we use a global function
 // and we pass the model as a parameter 
 exports.deleteTour= factory.deleteOne(Tour);
-/*exports.deleteTour= catchAsync( async(req, res, next)=>{     
-        // some options to add are 
-        const deletedTour= await Tour.findByIdAndDelete(req.params.id);
-        //console.log('tour deleted');
-        if(!deletedTour){
-            return next(new AppError('theres no tour with that id', 404));
-        }
-        
-        res.status(200).json(
-            {
-                status:'success',
-                data: {
-                    tour: deletedTour
-                }
-            }
-        );    
-});
-*/
-/**
- * categorize the current tours by their difficulty , with average for each category
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
+
 exports.getTourStats= catchAsync(async(req, res, next)=>{	
         //agregate is a pomise that returns an agregatte object so we need to await
 		const stats= await Tour.aggregate([
@@ -208,12 +74,6 @@ exports.getTourStats= catchAsync(async(req, res, next)=>{
         );
 });
 
-/**
- * report the month with more tours by month in a specific year
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
 exports.getMonthlyPlan= catchAsync( async(req, res, next)=>{
 	//this function get the month with more tours in that month in a specific year
 		const year= req.params.year*1;//2021
@@ -265,5 +125,77 @@ exports.getMonthlyPlan= catchAsync( async(req, res, next)=>{
         );
 });
 
+// /tours-within/:distance/center/:latlng/unit/:unit
+// //tours-within/233/center/40.712856,-74.006056/unit/mi
+exports.getToursWithin = catchAsync(async (req, res, next) => {
+    // Extract parameters from the url by deconstructing the req.params object
+    const { distance, latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');//to get the latitude and longitude from the latlng string
 
+    // Convert distance to radians as mongoDB uses radians for geo queries
+    // 1 mile = 3963.2 miles radius of the earth and 1 km = 6378.1 km radius of the earth
+    const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+    //lets make sure that lat and lng are in the correct formad separated by coma
+    if (!lat || !lng) {
+        return next(new AppError('Please provide latitude and longitude in the format lat,lng.', 400));
+    }
 
+    //console.log(`Searching for tours within ${distance} ${unit} of point (${lat}, ${lng}) with radius ${radius} radians.`);
+    // Find tours within the specified distance
+    
+    const tours = await Tour.find({
+        //startLocation is the point that we want to search around
+        //the $geoWithin operator will find all the documents that are within the $centerSphere (coordinates)
+        startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } }
+    });
+
+    res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+            tours
+        }
+    });
+});
+
+exports.getDistances = catchAsync(async (req, res, next) => {
+    // Extract parameters from the url by deconstructing the req.params object
+    const { latlng, unit } = req.params;
+    const [lat, lng] = latlng.split(',');
+
+    // Convert lat and lng to numbers
+    const latitude = +lat;
+    const longitude = +lng;
+
+    // Find distances from the specified point
+    const distances = await Tour.aggregate([
+        {//for all mongoDB aggregation pipelines that uses geospatial queries, 
+        // this stage must be the first one in the pipeline always
+            $geoNear: {// uses a geospacial index field in our case we have already startLocation field indexed as 2dsphere
+                // so automatically geoNear will use that index, if theres many of those we need to use keys parameters
+                near: {
+                    type: 'Point',
+                    coordinates: [longitude, latitude] // Note: MongoDB uses [lng, lat]
+                },
+                distanceField: 'distance',
+                spherical: true,
+                // Convert distance to the specified unit miles or kilometers
+                distanceMultiplier: unit === 'mi' ? 0.000621371 : 0.001 // 1 meter to miles or kilometers
+            }
+        },//till this tage we have the arrays of tours with a extra field on it, that we call 'distance' 
+        // 'distance' has the distance from their own startLocation to the specified coordinates in the url
+        {//this stage only keep the data that we are interestd to look, and removes the rest of the fields
+            $project: {
+                name: 1,
+                distance: 1
+            }
+        } 
+    ]);
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            distances
+        }
+    });
+});

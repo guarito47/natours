@@ -1,0 +1,18 @@
+doctype html 
+html
+  head 
+    //- to add variables inside a text like teh tittle we need to interpolite with #{objectName}
+    title Guaritours | #{tour} - #{user}    
+    link(rel='stylesheet', href='css/style.css')
+    link(rel='shortcut icon', type='image/png' href='img/favicon.png')
+
+  body 
+    //- with the dash this comment doesnt appear in the html result , without dash appears as html comment
+    //- this is called buffered code, where we can call local variables, al also call javascript code
+    h1= tour 
+    h1= user.toUpperCase()
+    //- and we have unbuffered code, that is not going to add anything to the html/output like behinf the scenes
+    - const x= 9
+    h1= 2*x
+    p Welcome to Guaritours, your travel companion!
+    

@@ -3,32 +3,36 @@ class APIFeatures{
 	constructor(mongoQueryObj, reqQuery){
 		this.mongoQueryObj= mongoQueryObj;
 		this.reqQuery= reqQuery;
-		
 	}
 
 	filter(){
-		//const queryObj = {...req.query};//
+		
 		const queryObj = {...this.reqQuery};
-
     const excludeFields= ['page', 'sort', 'limit', 'fields'];    
     excludeFields.forEach(el=>delete queryObj[el]);
     
 		let queryStr=JSON.stringify(queryObj);
 		queryStr= queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match=> `$${match}`);	
-		
+
 		//let queryDBFields = Tour.find(JSON.parse(queryStr));
 		this.mongoQueryObj= this.mongoQueryObj.find(JSON.parse(queryStr));
-
+		//console.log("this filter");
+		//console.log(this);	
 		return this;//in order to keep chaining this functions filter().sort();..
 	}
 
 	sort(){
 		if(this.reqQuery.sort){
-			const sortBy= this.reqQuery.sort.split(',').join(' ');			
+			const sortBy= this.reqQuery.sort.split(',').join(' ');		
+		//console.log("sortBy");
+		//console.log(sortBy);	
 			this.mongoQueryObj= this.mongoQueryObj.sort(sortBy);
 			} else {
 			 	this.mongoQueryObj=this.mongoQueryObj.sort('-createdAt');
 			}
+
+		//console.log("this sort");
+		//console.log(this);	
 		return this;
 	}
 
@@ -42,6 +46,8 @@ class APIFeatures{
 			//- means exclude __v is the field created by mongo
 			this.mongoQueryObj=this.mongoQueryObj.select('-__v');
 		}
+		//console.log("this limit");
+		//console.log(this.mongoQueryObj);	
 		return this;
 	}
 
@@ -60,6 +66,8 @@ class APIFeatures{
 		// 	if(skip >= numTours)
 		// 		throw new Error('no more page numbers to move on');
 		// }
+		//console.log("this paginate");
+		//console.log(this.mongoQueryObj);	
 		return this;
 	}
 }

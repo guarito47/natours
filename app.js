@@ -6,7 +6,7 @@
  * @lastUpdate 4/25/2025
  * @license MIT License
  */
-
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -14,25 +14,43 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
+
 const winston = require('winston/lib/winston/config');
 const swaggerUI = require('swagger-ui-express');
 //const swaggerJsdoc = require('swagger-jsdoc');
+const viewsRouter = require('./routes/viewRoutes');
 const toursRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/userRoutes');
 const reviewsRouter = require('./routes/reviewRoutes');
+
 const AppError= require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControler');
 const specs = require('./utils/swagger/swagger');
 const APIFeatures = require('./utils/apiFeatures');
 //const logger=require('./utils/logger');
-
 // eslint-disable-next-line new-cap
+
 const app = new express();
 
-//1) GLOBAL MIDDLEWARES
+//we define engine for redering or templates, in this case 'pug'need to be installed first
+app.set('view engine', 'pug');
+//our pug templates are called in express 'views', so we set the path to our views directory
+//we cant use './views' because it will be relative to the current working directory,
+//so we use path.join to get the absolute path to our views directory so it will work in any environment
+//so we dont need to worry about which /, \, // if we are using in our system, windows or linux
+app.set('views', path.join(__dirname,'views')); //setting views directory
 
-//set http headers
+
+
+//1) GLOBAL MIDDLEWARES
+//serving statis files , refactoring older way for path join
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+//set http headers blinded to dont public critical info
 app.use(helmet());
+
 
 //chossing morgan depening dev o rprod envirenment
 if (process.env.NODE_ENV === 'development'){
@@ -42,7 +60,6 @@ if (process.env.NODE_ENV === 'development'){
 }
 
 //ASSIGN GLOBAL MIDDLEWARES TO OUR APP
-
 //here we are configuring our rateLimit to prevent brute force attacks, limiting request from same ip
 const limiter = rateLimit({
   max:100, //request per Ip in 
@@ -52,9 +69,12 @@ const limiter = rateLimit({
 });
 
 app.use('/api',limiter);
-//body parser, to read data from body into req.body, also as parameter the limit size of the body
-//in order to prevent attacks with big body data size, trying to down the server
+//this parser the content to the body in json format, to read data from body into req.body,
+// also as parameter the limit size of the body in order to prevent attacks with big body data size,
+// trying to down the server
 app.use(express.json({limit: '10kb'}));
+//same as above but to read cookies
+app.use(cookieParser());
 
 //setting swagger ui, (route, middleware, and swagger.json file)
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
@@ -73,15 +93,19 @@ app.use(hpp({
   whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'maxFroupSize', 'difficulty', 'price']
 }));
 
-//serving statis files 
-app.use(express.static(`${__dirname}/public/`));
+
 //test middleware
 app.use((req, res, next) => {
   req.tiempoConsulta = new Date().toISOString();
+  console.log(req.cookies);
   next();
 });
 
 //APPENDING MIDDLEWARES TO OUR APP FOR ROUTES
+
+// first our routes for website, for express the render templates routes
+app.use('/', viewsRouter);
+// next the routes for our API application, 
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewsRouter);

@@ -34,7 +34,13 @@ const azGetSecret= require('../utils/azureKeyVault');
   logger.error(error);
 });*/
 
+const signToken = id => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN
+  });
+};
 
+/* SIGNTOKEN GETTING SECRET FROM AZURE KEYVAULT
 const signToken =  async(userId)=>{  
 
   try{
@@ -48,7 +54,7 @@ const signToken =  async(userId)=>{
     logger.error(error);
   }
     
-};
+};*/
 
 
 //const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
@@ -60,8 +66,9 @@ const signToken =  async(userId)=>{
  * @param {Object} res the global response to return to the client
  */
 const createSendToken= async (newUser, statusCode, res)=>{  
-  //const token= signToken(newUser._id.valueOf());
+  const token= signToken(newUser._id.valueOf());
   
+  /* TO GET JWT SECRET FROM KEY VAULT
   let token;
   try {
      token= await signToken(newUser._id.valueOf());
@@ -70,7 +77,7 @@ const createSendToken= async (newUser, statusCode, res)=>{
   } catch (error) {
     logger.error(`error from keyvault: ${error}`);
     console.log(error);
-  }  
+  }  */
 
   const cookieOptions= {
     //cookie value is 90 days we need to convert to miliseconds where 24 hours 60 min, 60 sec x 1000 to be miliseconds  
@@ -150,12 +157,14 @@ exports.login = catchAsync(async (req, res, next) => {
  */
 exports.protect = catchAsync(async (req, res, next)=>{
   let token;
-  // 1) lets check if exist the token in the header of the client  
+  // 1) lets check if exist the token in the header of the client  works for API
   if(//we  ask in the client header if exist the authortization parameter with the token
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ){//if exist then take off the bearer part to just keep the token
     token = req.headers.authorization.split(' ')[1];
+  } else if(req.cookies.jwt){ //from cookies works for webapp
+    token = req.cookies.jwt;
   }
   
   if(!token){
@@ -183,9 +192,41 @@ exports.protect = catchAsync(async (req, res, next)=>{
   next();
 });
 
-//the 3 dots means REST PARAMETER SYNTAX IN ES6 so it will create an array to handle 
+/**we use this function to check is our _header view will be in session or login mode
+ * the in difference with protect is that protect check the token only for specifics routes
+ * and isLoggedIn check the token for render any page  */
+exports.isLoggedIn = catchAsync(async (req, res, next)=>{
+  // VERIFY THE TOKEN
+  //we only have cookie token and not authorization header (only api)
+  if(req.cookies.jwt){ //from cookies works for webapp
+    
+    const decoded =  await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+    // 2) check if the user still exist
+    const currentUserFromDB = await User.findById(decoded.id);
+
+    if(!currentUserFromDB){
+      //if theres no user, means if was deleted while is logged, do nothing, is not job of this function
+      //then stop the rest of the code and getout of this function without setting a user (no session)
+      return next();    
+    }
+    // 3) if the user change the password after the token was give, 
+    if(currentUserFromDB.changedPswAfter(decoded.iat)){  
+      //then stop the rest of the code and getout of this function without setting a user (no session)
+      return next();
+    }
+
+    //IF WE PASS ALL OUR FILTERS THEN WE HAVE A LOGGED IN USER
+    //we will store in res.locals a new variable called user and next to the next middleware
+    res.locals.user= currentUserFromDB;
+    return next(); //if we dont put return this will do next() from if and after next from outside if means twice
+  }
+  //if theres no cookie we pass to the next middleware without setting a user (no session)
+  next();
+});
+
+/*the 3 dots means REST PARAMETER SYNTAX IN ES6 so it will create an array to handle 
 // the dynamic number of parameters so the roles is this array can be 1, or 2, or 3 roles
-//because we cant send parameters into a middleware we will wraper a midleware to handle parameters
+//because we cant send parameters into a middleware we will wraper a midleware to handle parameters*/
 exports.restrictTo = (...roles)=>{
   return (req, res, next)=>{
     //roles are ['admin', 'lead-guide'] so we will check if the user role are inside this array
@@ -206,17 +247,19 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
-  //the line up, assign value to expirationDate, and creatyed a resetToken but till now is only in memory
-  //not saved in db, to save we need to call save method
-  //but will send error for the required fields validators of the rest of the fields se we need to bypass
-  //for this only step
+  /*the line up, assign value to expirationDate, and creatyed a resetToken but till now is only in memory
+  not saved in db, to save we need to call save method
+  but will send error for the required fields validators of the rest of the fields se we need to bypass
+  for this only step*/
+
   await user.save({ validateBeforeSave: false });
 
   // 3) Send it to user's email
-  //now lets prepare tyhe link to reset their psw
-  //req.protocol is http or https where it works for dev or prod environment
-  //re.get.hostworks for localhost, dev, or prod
-  //DONT forgot that we are sending the plain token , not the encrypted one
+  /*now lets prepare tyhe link to reset their psw
+  req.protocol is http or https where it works for dev or prod environment
+  re.get.hostworks for localhost, dev, or prod
+  DONT forgot that we are sending the plain token , not the encrypted one*/
+
   const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`;
 
   const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
@@ -247,9 +290,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on the token
-  //here we receive email link with the token (un-encryted one) to compare with our token
-  //saved in our DB (encrypten) so to compare we need to encrypt the token from email to
-  //compare encrypted against encrypted
+  /*here we receive email link with the token (un-encryted one) to compare with our token
+  saved in our DB (encrypten) so to compare we need to encrypt the token from email to
+  compare encrypted against encrypted*/
   const hashedToken = crypto
     .createHash('sha256')
     .update(req.params.token)
@@ -297,11 +340,10 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   // 3) If so, update password
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
-  // User.findByIdAndUpdate will NOT work as intended! because we will avoid to trigger our pre save functions
+  //User.findByIdAndUpdate will NOT work as intended! because we will avoid to trigger our pre save functions
   //that is required to encryp and make sure validations, that only we did that in pre save funcions and not in
   //findbyidand upodate, thats why we need to use save
   await user.save();
-  
 
   // 4) Log user in, send JWT
   createSendToken(user, 200, res);

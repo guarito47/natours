@@ -24,25 +24,12 @@ const filterObj = (obj, ...allowedFields) => {
     });
     return newObj;
 };
-
-/**
- * retrieve all the existing users in the DB
- * @param {Object} req the global client request to the server
- * @param {Object} res the global response to return to the client
- * @param {Object} next the global object to continue the next middleware
- */
-exports.getAllUsers=catchAsync(async (req, res, next )=>{
-
-    const Users= await User.find();
-    res
-    .status(200).json({
-        status:'success',
-        results: User.length, 
-        data: {
-            Users
-        }
-    });
-});
+//this method retrieve the current user info, without getting from the url as parameter instead will use
+//the req.user object that was set in the protect middleware
+exports.getMe= (req, res, next) => {
+    req.params.id = req.user.id; //we will use the user id from the token
+    next(); //we will call the next middleware, in this case getOne
+}
 
 exports.updateMe = catchAsync(async (req, res, next) => {
     //we only update info related with no passwords, so if any password is pressent we will reject
@@ -85,12 +72,33 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 
+
+/**
+ * creates a new user internally (pending)
+ * @param {Object} req the global client request to the server
+ * @param {Object} res the global response to return to the client
+ * @param {Object} next the global object to continue the next middleware
+ */
+//we will never has this method exposed to the client, this is only for internal use
+// so users need to user signup process to create a new user
+exports.createUser=(req, res)=>{
+    res
+    .status(500)
+    .json({
+        status:'error',
+        message: 'this route is not defined , please use signup instead'
+    });
+};
+
 /**
  * retrieve an existing user by their id (pending)
  * @param {Object} req the global client request to the server
  * @param {Object} res the global response to return to the client
  * @param {Object} next the global object to continue the next middleware
  */
+
+exports.getUser= factory.getOne(User);
+/*
 exports.getUser=(req, res)=>{
     res
     .status(500)
@@ -99,21 +107,28 @@ exports.getUser=(req, res)=>{
         message: 'user page still working v2'
     });
 };
-
+*/
 /**
- * creates a new user internally (pending)
+ * retrieve all the existing users in the DB
  * @param {Object} req the global client request to the server
  * @param {Object} res the global response to return to the client
  * @param {Object} next the global object to continue the next middleware
  */
-exports.createUser=(req, res)=>{
+exports.getAllUsers = factory.getAll(User);
+/*
+exports.getAllUsers=catchAsync(async (req, res, next )=>{
+
+    const Users= await User.find();
     res
-    .status(500)
-    .json({
-        status:'error',
-        message: 'create users still working'
+    .status(200).json({
+        status:'success',
+        results: User.length, 
+        data: {
+            Users
+        }
     });
-};
+});
+*/
 
 /**
  * updates user info (pending)
@@ -121,6 +136,9 @@ exports.createUser=(req, res)=>{
  * @param {Object} res the global response to return to the client
  * @param {Object} next the global object to continue the next middleware
  */
+//Do NOT update passwords with this method, use the updateMyPassword method instead
+exports.updateUser= factory.updateOne(User);
+/*
 exports.updateUser=(req, res)=>{
     res
     .status(500)
@@ -129,7 +147,7 @@ exports.updateUser=(req, res)=>{
         message: 'update user still working'
     });
 };
-
+*/
 
 /**
  * delete a specific user by thir id (pending)
@@ -137,6 +155,7 @@ exports.updateUser=(req, res)=>{
  * @param {Object} res the global response to return to the client
  * @param {Object} next the global object to continue the next middleware
  */
+exports.deleteUser= factory.deleteOne(User);
 /*
 exports.deleteUser=(req, res)=>{
     res
@@ -147,4 +166,3 @@ exports.deleteUser=(req, res)=>{
     });
 };
 */
-exports.deleteUser= factory.deleteOne(User);

@@ -120,3 +120,47 @@
 [16:05:2025 09:55:31] [error]: az get secret for db mongo: VIOl210s318
 [16:05:2025 10:12:11] [error]: mysql connection success
 [16:05:2025 10:12:17] [error]: az get secret for db mongo: VIOl210s318
+[16:05:2025 11:45:17] [error]: mysql connection success
+[16:05:2025 11:45:25] [error]: az get secret for db mongo: VIOl210s318
+[16:05:2025 14:02:16] [error]: mysql connection success
+[16:05:2025 14:02:32] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 13:59:23] [error]: error mysql connection:Error: connect ETIMEDOUT
+[19:05:2025 13:59:26] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 14:05:31] [error]: az get secret for db mongo: VIOl210s318
+[19:05:2025 14:05:36] [error]: error mysql connection:Error: connect ETIMEDOUT
+[26:05:2025 10:30:34] [error]: error mysql connection:Error: connect ETIMEDOUT
+[26:05:2025 10:30:37] [error]: az get secret error for db mongo: RestError: The subscription associated with this vault has been disabled.
+Vault: natoursKeys;location=eastus
+[29:05:2025 09:32:35] [error]: error mysql connection:Error: getaddrinfo ENOTFOUND natoursmysql.mysql.database.azure.com
+[29:05:2025 09:32:41] [error]: az get secret error for db mongo: RestError: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:51:58] [error]: error getting secret from azure key vault
+[29:05:2025 11:51:58] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:51:58] [error]: token from keyvault: undefined
+[29:05:2025 11:59:16] [error]: error getting secret from azure key vault
+[29:05:2025 11:59:16] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 11:59:35] [error]: error getting secret from azure key vault
+[29:05:2025 11:59:35] [error]: getaddrinfo ENOTFOUND natourskeys.vault.azure.net
+[29:05:2025 12:20:20] [error]: Incorrect email or password
+[06:06:2025 21:05:49] [error]: uncaughtException: Invalid or unexpected token
+C:\Users\eguar\Desktop\TESTIFY\natoursAzureRepo\natours\node_modules\esutils\lib\ast.js:1
+S
+ 
+
+SyntaxError: Invalid or unexpected token
+    at wrapSafe (node:internal/modules/cjs/loader:1486:18)
+    at Module._compile (node:internal/modules/cjs/loader:1528:20)
+    at Object..js (node:internal/modules/cjs/loader:1706:10)
+    at Module.load (node:internal/modules/cjs/loader:1289:32)
+    at Function._load (node:internal/modules/cjs/loader:1108:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:220:24)
+    at Module.require (node:internal/modules/cjs/loader:1311:12)
+    at require (node:internal/modules/helpers:136:16)
+    at C:\Users\eguar\Desktop\TESTIFY\natoursAzureRepo\natours\node_modules\esutils\lib\utils.js:29:19
+[16:06:2025 16:10:29] [error]: Incorrect email or password
+[03:07:2025 11:14:42] [error]: Incorrect email or password
+[03:07:2025 19:01:47] [error]: Incorrect email or password
+[03:07:2025 20:00:33] [error]: Incorrect email or password
+[03:07:2025 22:33:07] [error]: Incorrect email or password
+[03:07:2025 22:33:15] [error]: Incorrect email or password
+[03:07:2025 22:34:23] [error]: Incorrect email or password

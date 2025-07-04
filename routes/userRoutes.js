@@ -15,7 +15,6 @@ const authController = require('../controllers/authController');
 
 const usersRouter= express.Router( );
 
-
 /**
  * @swagger
  * components:
@@ -80,7 +79,6 @@ const usersRouter= express.Router( );
  *   description: The Users managing API
  */
 
-
 /**
  * @swagger
  * /api/v1/users/signup:
@@ -124,14 +122,41 @@ usersRouter.post('/signup',authController.signup);
  */
 
 usersRouter.post('/login',authController.login);
-
-
 usersRouter.post('/forgotPassword', authController.forgotPassword);
 usersRouter.patch('/resetPassword/:token', authController.resetPassword);
-usersRouter.patch('/updateMyPassword', authController.protect, authController.updatePassword);
-usersRouter.patch('/updateMe', authController.protect, userController.updateMe);
-usersRouter.delete('/deleteMe', authController.protect, userController.deleteMe);
+//till this point all the methods above are public
+usersRouter.use(authController.protect); 
+//from this point all the methods are protected and require authentication
+//setting the userRouter to use the authController.protect will achieve that functionality
+//all the routes below this line will require authentication, 
+//that why we removed the protect middleware from each route
 
+usersRouter.patch(
+    '/updateMyPassword', 
+    //authController.protect, 
+    authController.updatePassword
+);
+usersRouter.get(
+    '/me', 
+    //authController.protect, 
+    userController.getMe, 
+    userController.getUser
+);
+
+usersRouter.patch(
+    '/updateMe', 
+    //authController.protect, 
+    userController.updateMe
+);
+
+usersRouter.delete(
+    '/deleteMe', 
+    //authController.protect, 
+    userController.deleteMe
+);
+
+usersRouter.use(authController.restrictTo('admin'));
+//also we apply another layer to restrict the access to the admin role to the following routes
 
 usersRouter
     .route('/')
@@ -143,5 +168,6 @@ usersRouter
     .get(userController.getUser)
     .patch(userController.updateUser)
     .delete(userController.deleteUser);
+
 
 module.exports=usersRouter;

@@ -70,6 +70,7 @@ const userSchema = new mongoose.Schema({
 * @param {string} save the built in mongo operation to call on pre statement 
 * @param {Object} next the global object to continue the next middleware
 */
+
 userSchema.pre('save', async function(next){
   
   if(!this.isModified('password')) return next();
@@ -85,6 +86,7 @@ userSchema.pre('save', async function(next){
 
 //this middleware is execute before making save operation, we will validate is its a password saving operation
 //if its the case we willl set password change at field calculated in our model and not in the code
+
 userSchema.pre('save', function(next) {
   //if in the payload dont apeears the password and is not the new document creation we dont need to to nothing
   if (!this.isModified('password') || this.isNew) return next();
@@ -93,6 +95,7 @@ userSchema.pre('save', function(next) {
   this.passwordChangedAt = Date.now() - 1000;
   next();
 });
+
 
 //to dont process users inactives (deleteds) we need to skip the ones that are inactive(false)
 userSchema.pre(/^find/, function(next) {

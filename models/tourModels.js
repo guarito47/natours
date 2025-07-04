@@ -39,7 +39,10 @@ const tourSchema = new mongoose.Schema({
       type: Number,
       default: 4.5,
       min:[1, 'min above 1.0'],
-      max:[5, 'max below 5.0']
+      max:[5, 'max below 5.0'],
+      set: val => Math.round(val * 10) / 10 //to round the decimals, ex: 4.6666 to 4.7
+      //if we round now well have 5, to avoid that, we multiply first by 10 and then divide by 10
+      //so we will have 4.6666 to 46.666 and then to 47.0 and divided by 10 to get 4.7
     },
     ratingsQuantity: {
       type: Number,
@@ -128,27 +131,33 @@ const tourSchema = new mongoose.Schema({
     toObject:{virtuals: true}//also for handling as object
   }
 );
+/*this is to quicly access the tours by price and ratingsAverage, as they are frequently used in queries
+that hepls a lot to speed up the queries, that uses this fields
+1 means ascending order, -1 means descending order*/
+tourSchema.index({price: 1, ratingsAverage: -1});
+tourSchema.index({slug: 1});//this is to index the slug field, so we can search by slug
+//this is to index the startLocation field, so we can search by location quicly
+tourSchema.index({startLocation: '2dsphere'});//as a GeoJSON object, the index order way is 2dsphere way
+//a virtual property of a defined squema y a field that can be calculated from the fields like duration in weeks
+tourSchema.virtual('durationWeeks').get(
+  function(){//we use a real function because we will handle the parameters of pour object by using this.
+    return this.duration / 7; 
+});
 
-  // this is a virtual field that we will use to populate the reviews,
-  // we will use the populate method to get the reviews of each tour
-  // works like a reference but we will not store the reviews in the tour
-  tourSchema.virtual('reviews', {
-    ref: 'Review',// the document model name where to look at
-    foreignField: 'tour',// the field that we will use to search the reviews 
-    localField: '_id'//our local tour id to compare with the foreign field
-  });
+  /* this is a virtual table with n:n of tour ID and Review ID that will use to populate the reviews,
+  we will use the populate method to get the reviews of each tour
+  works like a reference but we will not store the reviews ID in the tour*/
+tourSchema.virtual('reviews', {
+  ref: 'Review',// the document model name where to look at for the ID
+  foreignField: 'tour',// the field in the reviews model that stores the id of the tour 
+  localField: '_id'//our local field that stores our id to compare with the foreign field
+});
 
-  //a virtual property of a defined squema y a field that can be calculated from the fields like duration in weeks
-  tourSchema.virtual('durationWeeks').get(
-    function(){//we use a real function because we will handle the parameters of pour object by using this.
-      return this.duration / 7; 
-  });
-
-    //DOCUEMNT MIDDLEWARE as we know triggers, runs everytime ocurrPRE MEANS  BEFORE this callings: 
-    // save(), create() , NOT working for insertMany() this time a cool example before save a new tour
-    //we will have a field called slug so we can handle in the url, to create a slug we use slugify
-    //and as a express midleware wqe next to call next
-    //THIS refers to the current document
+/*DOCUEMNT MIDDLEWARE as we know triggers, runs everytime ocurrPRE MEANS  BEFORE this callings: 
+save(), create() , NOT working for insertMany() this time a cool example before save a new tour
+we will have a field called slug so we can handle in the url, to create a slug we use slugify
+and as a express midleware wqe next to call next
+THIS refers to the current document*/
   tourSchema.pre('save', function(next){
       this.slug= slugify(this.name, {lower:true});
       next();
@@ -204,13 +213,16 @@ const tourSchema = new mongoose.Schema({
     
 //AGREGATION MIDLEWARE; needed for the tour stats where still having in count the secret tour
 //here THIS refers to the current agregation object
-tourSchema.pre('aggregate', function(next){  
+
+// to work with geospacial route for distances we will disable for now, because this middleware
+// makes to be the first one stage pipeline , and to use geoespatial in pipelines, this need to be first always
+/*tourSchema.pre('aggregate', function(next){  
   //console.log(this.pipeline());
   //we will modify the agregate by adding a stage at the end using unshift and filter by match 
   //where all the docs that secret tour is true
   this.pipeline().unshift({$match:{secretTour:{$ne:true}}});
   next();
-});
+});*/
 
   const Tour = mongoose.model('Tour',tourSchema);
   module.exports= Tour;
