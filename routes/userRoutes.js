@@ -122,6 +122,8 @@ usersRouter.post('/signup',authController.signup);
  */
 
 usersRouter.post('/login',authController.login);
+//logut is 'get' because we dont send data, in fact we will receive a fake token that acts as logout
+usersRouter.get('/logout',authController.logout);
 usersRouter.post('/forgotPassword', authController.forgotPassword);
 usersRouter.patch('/resetPassword/:token', authController.resetPassword);
 //till this point all the methods above are public

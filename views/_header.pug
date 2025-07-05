@@ -8,8 +8,8 @@ header.header
     //-so we verify if exist the object user to make sure theres a user logged in
     if user
       a.nav__el.nav__el--logout Log out
-      a.nav__el(href='#')
-        img.nav__user-img(src=`img/users/${user.photo}`, alt=`photo of ${user.name}`)
+      a.nav__el(href='/me')
+        img.nav__user-img(src=`/img/users/${user.photo}`, alt=`photo of ${user.name}`)
         //- to show only the name and not the last name we split the string divided by space
         span= user.name.split(' ')[0]
     else

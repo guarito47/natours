@@ -84,6 +84,7 @@ const createSendToken= async (newUser, statusCode, res)=>{
     expires: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
     //secure: true, //to works only through httpS , 
     httpOnly: true //means that the cookie only can be accessing bye http and no other ways to accessing it
+    //also we cant modify or remove it from the browser
   };
     
   //we will set manually the httpS depends if we are on dev o production mode
@@ -148,6 +149,20 @@ exports.login = catchAsync(async (req, res, next) => {
   
 });
 
+//as we set httpOnly=true in the cookie creation options, that means nobody can modify or remove
+//the way to logout will be, send a new token but with invalid/dummy text (loggedout)
+exports.logout=(req, res)=>{
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now()+10*1000),//this token is valid only 10 sec
+    httpOnly: true
+  });
+
+  res.status(200)
+    .json({
+      status:'success'
+    });
+}
+
 /**
  * used to protect routes for only authehticated users (next by roles as well) with different
  * layers of security, like token manipulation, user exist, token expiration by password change  
@@ -187,42 +202,51 @@ exports.protect = catchAsync(async (req, res, next)=>{
     logger.error(new AppError('The user recently change their psw, please log in again', 401));  
     return next(new AppError('The user recently change their psw, please log in again', 401));
   }
-  req.user= currentUserFromDB;
-  //console.log("protect moves to next middleware")
+  req.user= currentUserFromDB;//the req.user is used for api request
+  res.locals.user= currentUserFromDB;//res.local.user is for website request
+  
   next();
 });
 
 /**we use this function to check is our _header view will be in session or login mode
  * the in difference with protect is that protect check the token only for specifics routes
- * and isLoggedIn check the token for render any page  */
-exports.isLoggedIn = catchAsync(async (req, res, next)=>{
+ * and isLoggedIn check the token for render any page 
+ * NOTICE that in this method we are not using catchasync, because when hit logout we will create an
+ * invalid token but the verification of this token will throw an error and that error is a trusted error
+ * for this porpouse, so to avoid to fall in cathasync handler we dont use it and just use try/catch block
+ * with the catch no effect (next()) for this error */
+exports.isLoggedIn = async (req, res, next)=>{
   // VERIFY THE TOKEN
   //we only have cookie token and not authorization header (only api)
   if(req.cookies.jwt){ //from cookies works for webapp
-    
-    const decoded =  await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
-    // 2) check if the user still exist
-    const currentUserFromDB = await User.findById(decoded.id);
+    try{
+      const decoded =  await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+      // 2) check if the user still exist
+      const currentUserFromDB = await User.findById(decoded.id);
 
-    if(!currentUserFromDB){
-      //if theres no user, means if was deleted while is logged, do nothing, is not job of this function
-      //then stop the rest of the code and getout of this function without setting a user (no session)
-      return next();    
-    }
-    // 3) if the user change the password after the token was give, 
-    if(currentUserFromDB.changedPswAfter(decoded.iat)){  
-      //then stop the rest of the code and getout of this function without setting a user (no session)
+      if(!currentUserFromDB){
+        //if theres no user, means if was deleted while is logged, do nothing, is not job of this function
+        //then stop the rest of the code and getout of this function without setting a user (no session)
+        return next();    
+      }
+      // 3) if the user change the password after the token was give, 
+      if(currentUserFromDB.changedPswAfter(decoded.iat)){  
+        //then stop the rest of the code and getout of this function without setting a user (no session)
+        return next();
+      }
+
+      //IF WE PASS ALL OUR FILTERS THEN WE HAVE A LOGGED IN USER
+      //we will store in res.locals a new variable called user and next to the next middleware
+      res.locals.user= currentUserFromDB;
+      return next(); //if we dont put return this will do next() from if and after next from outside if means twice
+
+    } catch(err){
       return next();
     }
-
-    //IF WE PASS ALL OUR FILTERS THEN WE HAVE A LOGGED IN USER
-    //we will store in res.locals a new variable called user and next to the next middleware
-    res.locals.user= currentUserFromDB;
-    return next(); //if we dont put return this will do next() from if and after next from outside if means twice
   }
   //if theres no cookie we pass to the next middleware without setting a user (no session)
   next();
-});
+};
 
 /*the 3 dots means REST PARAMETER SYNTAX IN ES6 so it will create an array to handle 
 // the dynamic number of parameters so the roles is this array can be 1, or 2, or 3 roles

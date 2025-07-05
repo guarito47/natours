@@ -14,9 +14,14 @@ router.get('/', (req, res) => {
 //by putting first this use this is looged is is like we put that function in every route, so to avoid
 //to rewrite the same for all the routes we set as use, note that if theres above more routes that dont have this 
 //function in there
-router.use(authController.isLoggedIn)
+//but we will remove that because we have a '/me' that need to verify that only logged users can access
+//so we have duplicate validation for '/me', authControler.isloggedin and authControler.protect
+//so to avoid we will back and separate to treat each case individually
+//router.use(authController.isLoggedIn);
 
-router.get('/', viewsController.getOverview);
-router.get('/tour/:slug', viewsController.getTour);
-router.get('/login', viewsController.getLogin);
+router.get('/', authController.isLoggedIn, viewsController.getOverview);
+router.get('/tour/:slug',authController.isLoggedIn, viewsController.getTour);
+router.get('/login',authController.isLoggedIn, viewsController.getLogin);
+router.get('/me', authController.protect, viewsController.getAccount);
+
 module.exports = router;

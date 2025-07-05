@@ -62,14 +62,24 @@ const handleJwtExpire=()=> new AppError('Your session was expired, please log in
  * @param {Object} err the global error object
  * @param {Object} res the global response to return to the client
  */
-const sendErrorDev= (err, res)=>{
-  //when is running in development we will send as much details to the programmer
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack
+const sendErrorDev= (err, req, res)=>{
+  //when is running in development we will send as much details to the programmer,
+  // because its only for programmers use, so first we will handle the api request
+  //the api error send a json response
+  if(req.originalUrl.startsWith('/api')){
+    return res.status(err.statusCode).json({
+      status: err.status,
+      error: err,
+      message: err.message,
+      stack: err.stack
+    });
+  }//here we handle the http request that means the response need to be a page => a render response
+  console.error('ERROR!!', err);
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong!',
+    msg: err.message
   });
+  
 };
 
 /**
@@ -77,22 +87,42 @@ const sendErrorDev= (err, res)=>{
  * @param {Object} err the global error object
  * @param {Object} res the global response to return to the client
  */
-const sendErrorProd=(err, res)=>{
-
-  if (err.isOperational){
-    res.status(err.statusCode).json({
-      status: err.status,      
-      message: err.message,      
-    });
-  } else{ //if is non caused bu us unexpected errors we will not send a detailed message to the client
+const sendErrorProd=(err, req, res)=>{
+  //FOR THE API REQUEST, the api error send a json response
+  if(req.originalUrl.startsWith('/api')){
+    //operational errors are trusted errors : that we know in advance and we know the non thecnical 
+    // message to the client, like a route url doesnt exist
+    if (err.isOperational){
+      return res.status(err.statusCode).json({
+        status: err.status,      
+        message: err.message,      
+      });
+    }
+    //if is non caused by a wellknow error, then its a programming error, no need to send a thecnical error 
+    // we just send a 'ups something is not woking'
     //1) log the error
     console.error('ERROR!!', err);
     //2) send generic message
-    res.status(500).json({
+    return res.status(500).json({
       status:'error',
       message: 'something went very wrong !'
-    })
+    })    
+  } //FOR THE WEBSITE REQUEST, then its a render response
+    //operational errors are trusted errors : that we know in advance and we know the non thecnical 
+    // message to the client, like a route url doesnt exist
+  if (err.isOperational){
+    return res.status(err.statusCode).render('error', {
+      title: 'Something went wrong!',
+      msg: err.message
+    });
   }
+  console.error('ERROR!!', err);
+  //2) send generic message
+  return res.status(err.statusCode).render('error', {
+    title: 'Something went wrong!',
+    msg: 'Please try again later.'
+  });
+  
 };
 
 /**
@@ -109,12 +139,14 @@ module.exports= (err, req, res, next)=>{
   err.status= err.status || 'error';
 
   if(process.env.NODE_ENV.trim()==='development'){      
-      sendErrorDev(err, res);
+      sendErrorDev(err, req, res);
   }
   else if(process.env.NODE_ENV.trim()==='production'){  
-    //to dont overwrite our oirginal err we will create a copy using let, 
-    // and then reassig later with teh proper error when mongo db error happend
+    //to dont overwrite our original err we will create a copy using let, 
+    // and then reassig later with the proper error when mongo db error happend
     let error = { ...err };
+    //for some reason this copy of error doesnt have the message (undefined) so we are doing the copy manually
+    error.message=err.message;
     /*MONGO DB ERRORS*/    
     if(error.name==='CastError'){
       error = handleCastErrorDB(error);
@@ -135,6 +167,6 @@ module.exports= (err, req, res, next)=>{
     if(error.name ==='TokenExpiredError') error = handleJwtExpire();
 
     //now we pass our custom error for mongo db handled errors    
-    sendErrorProd(error, res);
+    sendErrorProd(error, req, res);
   }
 }; 
