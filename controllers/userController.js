@@ -7,10 +7,50 @@
  * @lastUpdate 4/25/2025
  * @license MIT License
  */
+// multer is a middleware for handling multipart/form-data used for uploading files
+// so to update the user photo in our API not from raw json , but by form-data 
+const multer = require('multer');
 const User= require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
+
+//the professional way to handle file uploads is to use multer, so we will use multer.diskStorage
+const multerStorage = multer.diskStorage({
+    //cb is like next in the same usabillity, like to use to handle errors, cb is to set the destination
+    destination: (req, file, cb) => { 
+    //first argumnet is error, if any(for now null for none), second is the destination folder
+        cb(null, 'public/img/users');
+    },
+    filename: (req, file, cb) => {
+        //we will have the following format user-<userId>-<timestamp>.<ext>
+        //where the ext comes from req.file field mimetype: 'image/jpeg', tyhat why we will remove 'image/' part        
+        const ext = file.mimetype.split('/')[1]; //get the extension from the mimetype
+        //and we will add a timestamp to avoid conflicts with same name files
+        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`); 
+    }
+});
+//this is to dont allow to upload files that arnot images, so we will use a filter
+const multerFilter = (req, file, cb) => {
+    //we will check if the file is an image, if not we will reject it
+    if (file.mimetype.startsWith('image')) {
+        //if the file is an image we will accept it
+        cb(null, true);
+    } else {
+        //if the file is not an image we will reject it
+        cb(new AppError('Not an image! Please upload only images.', 400), false);
+    }
+};
+
+//upload is the multer instance but with a specific configuration thanks to multerStorage and multerFilter
+const upload = multer({
+    storage: multerStorage, //set the storage to the multerStorage we created
+    fileFilter: multerFilter //set the filter to the multerFilter we created
+ });
+
+//upload.single is the middleware that will handle the file upload
+//of course we can use upload.single directly in the rout, but we wrap to have a better readeable code
+exports.uploadUserPhoto= upload.single('photo'); // 'photo' is the field name in the form
 
 //...allowedFields means that can be variable parameters, that will treat as array
 const filterObj = (obj, ...allowedFields) => {
@@ -32,6 +72,24 @@ exports.getMe= (req, res, next) => {
 }
 
 exports.updateMe = catchAsync(async (req, res, next) => {
+    
+    //lets look what we have till here phase 1
+    console.log('updateMe called');
+    console.log(req.file);
+    /*
+    {
+  fieldname: 'photo',
+  originalname: 'leo.jpg',
+  encoding: '7bit',
+  mimetype: 'image/jpeg',
+  destination: 'public/img/users',
+  filename: 'cdf2761cab2424e702b740b9cc82c120',
+  path: 'public\\img\\users\\cdf2761cab2424e702b740b9cc82c120',
+  size: 207078
+}
+    */
+    console.log(req.body); //[Object: null prototype] { name: 'Leo C. Gillespie' }
+
     //we only update info related with no passwords, so if any password is pressent we will reject
     if (req.body.password || req.body.passwordConfirm) {
         return next(
@@ -42,12 +100,15 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         );
     }
     
-    //before save first as security layer we dont allow a user to change their role to admin, or token expiration etc
+    //before save first as security layer we dont allow a user to change their role to admin, 
+    // or token expiration etc
     //to avoid to allow this updates in case appears in the body, wi will filter with a function filterObj
     const filteredBody= filterObj(req.body, 'name', 'email');
+    //if we have a file (photo), we will add the photo field to the filteredBody
+    if (req.file) 
+        filteredBody.photo = req.file.filename; //we will store the filename, not the path,     
     //we cant use SAVE because has activated all validators like password confirm not present
-    //instead findbyidandupdate params user.id, fields to update, option new: true to return the new updated user
-    
+    //instead findbyidandupdate params user.id, fields to update, option new: true to return the new updated user    
     const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {new: true, runValidators:true});        
 
     res.status(200).json({

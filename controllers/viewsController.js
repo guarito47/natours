@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModels');
+const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const appError = require('../utils/appError');
 
@@ -44,9 +45,33 @@ exports.getLogin = (req, res)=>{
 
 exports.getAccount = (req, res)=>{
   //as same of login no need to query the DB because this is only for logged users 
-  //so the user info is already in res.locals.user, so we need to render the page with user info
+  //so the user info is already in res.locals.user, so we need to render the page with that user info
   res.status(200)
   .render('account', {
     title: 'Your acoount'
   });
 };
+
+exports.updateUserData = catchAsync(async(req, res, next)=>{
+  const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+    //req.body is the url ecoded that we enable to read when its html request, calling with the
+    //property name that we specify in the html, this case name, and email
+    name: req.body.name,
+    email: req.body.email
+  }, {
+    new: true, //tell mongo that we want as response the updated document
+    runValidators: true
+  });
+
+  //after execute and successfully recive the updated user , we need to render the account page again
+  //but with the actual info, so we need to update the user that is stored in protect and isLoggedIn mdlwr
+  res.status(200)
+    .render('account', {
+    title: 'Your acoount',
+    //we also need to send the updated user because the template account grab the info from thi user
+    // that we are sending here, also will be updated in our global res, and re users
+    user: updatedUser
+  });
+  //the bad thing with this html request is when occours an error and we show the proper error page
+  // the url still keep the origin url this case ../submit-order-data and not a error url page
+});

@@ -73,7 +73,10 @@ app.use('/api',limiter);
 // also as parameter the limit size of the body in order to prevent attacks with big body data size,
 // trying to down the server
 app.use(express.json({limit: '10kb'}));
-//same as above but to read cookies
+//this urlencoded also enables to read url parameters (if we handle html request)
+//extended for complex urls, and limit to 10kb of data
+app.use(express.urlencoded({extended:true}))
+//this cookie parser also enables to read cookies
 app.use(cookieParser());
 
 //setting swagger ui, (route, middleware, and swagger.json file)
@@ -97,7 +100,7 @@ app.use(hpp({
 //test middleware
 app.use((req, res, next) => {
   req.tiempoConsulta = new Date().toISOString();
-  console.log(req.cookies);
+  //console.log(req.cookies);
   next();
 });
 

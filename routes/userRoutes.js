@@ -9,6 +9,7 @@
  */
 
 const express = require('express');
+
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 
@@ -134,20 +135,18 @@ usersRouter.use(authController.protect);
 //that why we removed the protect middleware from each route
 
 usersRouter.patch(
-    '/updateMyPassword', 
-    //authController.protect, 
+    '/updateMyPassword',     
     authController.updatePassword
 );
 usersRouter.get(
-    '/me', 
-    //authController.protect, 
+    '/me',     
     userController.getMe, 
     userController.getUser
 );
 
 usersRouter.patch(
     '/updateMe', 
-    //authController.protect, 
+    userController.uploadUserPhoto,
     userController.updateMe
 );
 
