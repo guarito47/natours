@@ -172,3 +172,4 @@ Vault: natoursKeys;location=eastus
 [05:07:2025 09:40:20] [warn]: Please provide email and password!
 [08:07:2025 16:02:39] [error]: Incorrect email or password
 [08:07:2025 16:22:10] [error]: Incorrect email or password
+[10:07:2025 20:30:04] [warn]: You are not logged in! please log in first

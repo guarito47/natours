@@ -73,7 +73,6 @@ const userSchema = new mongoose.Schema({
 * @param {string} save the built in mongo operation to call on pre statement 
 * @param {Object} next the global object to continue the next middleware
 */
-
 userSchema.pre('save', async function(next){
   
   if(!this.isModified('password')) return next();

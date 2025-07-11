@@ -49,7 +49,11 @@ block content
               input#email.form__input(type='email', value=`${user.email}`, required, name='email')
             .form__group.form__photo-upload
               img.form__user-photo(src=`/img/users/${user.photo}`, alt='User photo')
-              a.btn-text(href='') Choose new photo
+              //-to open a file dialog , whit class name upload that accepts only images, with name 'photo'
+              //- that need to be exactly called 'photo' to match the backend multer middleware
+              input.form__upload(type='file', id='photo', accept='image/*', name='photo')
+              //-this label will be used to open the file dialog with id 'photo' when we click on it
+              label(for='photo') Choose new photo
             .form__group.right
               button.btn.btn--small.btn--green Save settings
         .line &nbsp;

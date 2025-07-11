@@ -7,11 +7,105 @@
  * @lastUpdate 4/23/2025
  * @license MIT License
  */
+// multer is a middleware for handling multipart/form-data used for uploading files
+// so to update the user photo in our API not from raw json , but by form-data 
+const multer = require('multer');
+const sharp = require('sharp'); //sharp is a library to resize images
 const Tour = require('../models/tourModels');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
 //const APIFeatures= require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
+
+
+// because diskStorage save in the disk but we are not taking care about the image resizing first,
+// we will use memoryStorage to save the file in memory, so we can resize first and then save it to disk
+// this is useful to avoid saving the original file to disk, and then resizing it
+const multerStorage = multer.memoryStorage();
+
+//this is to dont allow to upload files that arnot images, so we will use a filter
+const multerFilter = (req, file, cb) => {
+    //we will check if the file is an image, if not we will reject it
+    if (file.mimetype.startsWith('image')) {
+        //if the file is an image we will accept it
+        cb(null, true);
+    } else {
+        //if the file is not an image we will reject it
+        cb(new AppError('Not an image! Please upload only images.', 400), false);
+    }
+};
+
+//upload is the multer instance but with a specific configuration thanks to multerStorage and multerFilter
+const upload = multer({
+    storage: multerStorage, //set the storage to the multerStorage we created
+    fileFilter: multerFilter //set the filter to the multerFilter we created
+ });
+
+//upload.single('photo'); for 1 single photo
+//upload.array('images', 3); for multiple photos
+//upload.fields(.. for mix of both, single and multiple photos
+exports.uploadTourImages = upload.fields([
+    { name: 'imageCover', maxCount: 1 }, //maxCount is to limit the number of files to upload in this field
+    { name: 'images', maxCount: 3 } //this time we limit to 3
+]);
+
+
+exports.resizeTourImages = catchAsync( async (req, res, next)=>{
+    //console.log('resizeTourImages called');
+    //console.log(req.files);
+        /*
+    [Object: null prototype] {
+  imageCover: [
+    {
+      fieldname: 'imageCover',
+      originalname: 'new-tour-1.jpg',
+      encoding: '7bit',
+      mimetype: 'image/jpeg',
+      buffer: <Buffer ff d8 ff e0 ...
+    */
+    //if theres no images files uploaded, then only want to update data and not images, so lets move to next()
+    if (!req.files.imageCover || !req.files.images) return next();
+    //1) Cover image
+    //if exist images files then lets create a unique filename for the cover image,
+    // based on the tour id that we have already in url as parameter and current timestamp
+    //then we set a i n req a variable called imageCover (exact name as in our tour model) 
+    //that updateTour by handlerFactory as updateOne will grab this field as filled parameter tu update
+    req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`;    
+    //as you saw in console log imageCover is an array, so we take the first element
+    await sharp(req.files.imageCover[0].buffer) //we will use the buffer of the imageCover file
+            .resize(2000, 1333) //width, height
+            .toFormat('jpeg') //we will save the image in jpeg format
+            .jpeg({ quality: 90 }) //we will set the quality to 90% when compressed
+            .toFile(`public/img/tours/${req.body.imageCover}`); //we will setup the file dest in the disk;    
+
+    // 2) tour images
+
+    req.body.images = [];//we prepare and declare as array a variable called images into req
+    //this header of loop is not correct for calling multiple async/awaits, because it will not wait for 
+    //the async function to finish, but will continue to the next iteration        
+    //req.files.images.forEach( async(photo, i) => {
+    //the solution is having a map collection, wrap into a Promise.all that will wait till all promises in the map
+    //as executed successfull
+    await Promise.all(
+        req.files.images.map( async(photo, i) => {
+            const photoFilename = `tour-${req.params.id}-${Date.now()}-${i+1}.jpeg`;
+
+            //await sharp(req.files.images[i].buffer) //we will use the buffer of the imageCover file
+            await sharp(photo.buffer) //this also can work as well the code above
+                //we can use the photoFilename as the name of the file, so we can save
+                .resize(2000, 1333) //width, height
+                .toFormat('jpeg') //we will save the image in jpeg format
+                .jpeg({ quality: 90 }) //we will set the quality to 90% when compressed
+                .toFile(`public/img/tours/${photoFilename}`); //we will setup the file dest in the disk;
+
+            req.body.images.push(photoFilename); //we push the filename to the images array
+    }));
+
+    console.log(req.body.images);
+    next();
+});
+    
+
 
 exports.aliasTopTours=(req, res, next)=>{
 	req.query.limit = '5';

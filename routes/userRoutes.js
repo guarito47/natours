@@ -146,7 +146,8 @@ usersRouter.get(
 
 usersRouter.patch(
     '/updateMe', 
-    userController.uploadUserPhoto,
+    userController.uploadUserPhoto,//this middleware will upload the user photo
+    userController.resizeUserPhoto, //this middleware will resize the user photo
     userController.updateMe
 );
 

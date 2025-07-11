@@ -182,6 +182,8 @@ toursRouter
     .patch(//but onbly admins and lead-guides can update or delete a tour
         authController.protect, 
         authController.restrictTo('admin', 'lead-guide'),
+        tourController.uploadTourImages, //this is the middleware to upload images
+        tourController.resizeTourImages, //this is the middleware to resize images
         tourController.updateTour
     )
     .delete(

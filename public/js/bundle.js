@@ -12803,9 +12803,6 @@ var updateSettings = exports.updateSettings = /*#__PURE__*/function () {
           res = _context2.v;
           if (res.data.status === 'success') {
             (0, _alerts.showAlert)('success', "".concat(type.toUpperCase(), " updated successfully!!"));
-            /*window.setTimeout(() => {
-              location.reload(true); //reload the page to see the changes
-            }, 1500);*/
           }
           _context2.n = 3;
           break;
@@ -12995,26 +12992,54 @@ if (loginForm) {
 if (logoutBtn) {
   logoutBtn.addEventListener('click', _login.logout);
 }
-if (userDataForm) {
-  userDataForm.addEventListener('submit', function (e) {
-    e.preventDefault(); //this prevents to loading any other page  
-    var name = document.getElementById('name').value;
-    var email = document.getElementById('email').value;
+
+/* //before handling update photo 
+if(userDataForm){
+  userDataForm.addEventListener('submit', e=>{
+    e.preventDefault();//this prevents to loading any other page      
+    const name= document.getElementById('name').value;
+    const email= document.getElementById('email').value;
     //we call the function that will update the data
     //updateData(name, email);
     //newer update using a generic data or password update
-    (0, _updateSettings.updateSettings)({
-      name: name,
-      email: email
-    }, 'data');
-  });
+    updateSettings({name, email}, 'data');
+  });  
+}
+*/
+
+//handling the update photo in among username and email, now using the as FormData API
+if (userDataForm) {
+  userDataForm.addEventListener('submit', /*#__PURE__*/function () {
+    var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
+      var form;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.n) {
+          case 0:
+            e.preventDefault(); //this prevents to loading any other page  
+            form = new FormData(); //we create a new FormData object
+            form.append('name', document.getElementById('name').value);
+            form.append('email', document.getElementById('email').value);
+            //the photo file from file dialog comes in an array and because we upload only one, we take the first one
+            form.append('photo', document.getElementById('photo').files[0]);
+            //updatesettings keeps functional even having a photo file also, because form data act as onbject as well
+            //from this form we are sending the binary photo, but in our backend our first middlewares will do the rest
+            (0, _updateSettings.updateSettings)(form, 'data');
+          case 1:
+            return _context.a(2);
+        }
+      }, _callee);
+    }));
+    return function (_x) {
+      return _ref.apply(this, arguments);
+    };
+  }());
 }
 if (userPasswordForm) {
   userPasswordForm.addEventListener('submit', /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(e) {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(e) {
       var passwordCurrent, password, passwordConfirm;
-      return _regenerator().w(function (_context) {
-        while (1) switch (_context.n) {
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.n) {
           case 0:
             e.preventDefault(); //this prevents to loading any other page  
             //we change the button text to indicate that is updating, like a spinner loading effect
@@ -13022,7 +13047,7 @@ if (userPasswordForm) {
             passwordCurrent = document.getElementById('password-current').value;
             password = document.getElementById('password').value;
             passwordConfirm = document.getElementById('password-confirm').value;
-            _context.n = 1;
+            _context2.n = 1;
             return (0, _updateSettings.updateSettings)({
               passwordCurrent: passwordCurrent,
               password: password,
@@ -13038,12 +13063,12 @@ if (userPasswordForm) {
             document.getElementById('password-confirm').value = '';
             document.querySelector('.btn--save-password').textContent = 'Save password';
           case 2:
-            return _context.a(2);
+            return _context2.a(2);
         }
-      }, _callee);
+      }, _callee2);
     }));
-    return function (_x) {
-      return _ref.apply(this, arguments);
+    return function (_x2) {
+      return _ref2.apply(this, arguments);
     };
   }());
 }
@@ -13072,7 +13097,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58752" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54129" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

@@ -44,15 +44,33 @@ if(logoutBtn){
   logoutBtn.addEventListener('click', logout);
 }
 
+/* //before handling update photo 
 if(userDataForm){
   userDataForm.addEventListener('submit', e=>{
-    e.preventDefault();//this prevents to loading any other page  
+    e.preventDefault();//this prevents to loading any other page      
     const name= document.getElementById('name').value;
     const email= document.getElementById('email').value;
     //we call the function that will update the data
     //updateData(name, email);
     //newer update using a generic data or password update
     updateSettings({name, email}, 'data');
+  });  
+}
+*/
+
+//handling the update photo in among username and email, now using the as FormData API
+if(userDataForm){
+  userDataForm.addEventListener('submit', async e=>{
+    e.preventDefault();//this prevents to loading any other page  
+    const form = new FormData();//we create a new FormData object
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    //the photo file from file dialog comes in an array and because we upload only one, we take the first one
+    form.append('photo', document.getElementById('photo').files[0]);
+    //updatesettings keeps functional even having a photo file also, because form data act as onbject as well
+    //from this form we are sending the binary photo, but in our backend our first middlewares will do the rest
+    updateSettings(form, 'data');
+    
   });  
 }
 

@@ -10,13 +10,14 @@
 // multer is a middleware for handling multipart/form-data used for uploading files
 // so to update the user photo in our API not from raw json , but by form-data 
 const multer = require('multer');
+const sharp = require('sharp'); //sharp is a library to resize images
 const User= require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 
 //the professional way to handle file uploads is to use multer, so we will use multer.diskStorage
-const multerStorage = multer.diskStorage({
+/*const multerStorage = multer.diskStorage({
     //cb is like next in the same usabillity, like to use to handle errors, cb is to set the destination
     destination: (req, file, cb) => { 
     //first argumnet is error, if any(for now null for none), second is the destination folder
@@ -29,7 +30,13 @@ const multerStorage = multer.diskStorage({
         //and we will add a timestamp to avoid conflicts with same name files
         cb(null, `user-${req.user.id}-${Date.now()}.${ext}`); 
     }
-});
+});*/
+
+// because diskStorage save in the disk but we are not taking care about the image resizing first,
+// we will use memoryStorage to save the file in memory, so we can resize first and then save it to disk
+// this is useful to avoid saving the original file to disk, and then resizing it
+const multerStorage = multer.memoryStorage();
+
 //this is to dont allow to upload files that arnot images, so we will use a filter
 const multerFilter = (req, file, cb) => {
     //we will check if the file is an image, if not we will reject it
@@ -51,6 +58,23 @@ const upload = multer({
 //upload.single is the middleware that will handle the file upload
 //of course we can use upload.single directly in the rout, but we wrap to have a better readeable code
 exports.uploadUserPhoto= upload.single('photo'); // 'photo' is the field name in the form
+
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+    //we will only resize the photo if we have a file, so we check if req.file is present
+    if (!req.file) return next(); //if no file, we will skip this middleware
+    //we will use sharp to resize the image, so we need to install sharp first
+    //npm install sharp
+    //we will set the filename to the user id and timestamp, because the next middleware "updateMe" will use it
+    req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`; 
+     //req.file.buffer is the photo in memory
+    await sharp(req.file.buffer)
+        .resize(500, 500) //width, height
+        .toFormat('jpeg') //we will save the image in jpeg format
+        .jpeg({ quality: 90 }) //we will set the quality to 90% when compressed
+        .toFile(`public/img/users/${req.file.filename}`); //we will setup the file dest in the disk;
+    
+        next(); //we will call the next middleware, in this case updateMe
+});
 
 //...allowedFields means that can be variable parameters, that will treat as array
 const filterObj = (obj, ...allowedFields) => {
@@ -74,8 +98,8 @@ exports.getMe= (req, res, next) => {
 exports.updateMe = catchAsync(async (req, res, next) => {
     
     //lets look what we have till here phase 1
-    console.log('updateMe called');
-    console.log(req.file);
+    //console.log('updateMe called');
+    //console.log(req.file);
     /*
     {
   fieldname: 'photo',
@@ -88,7 +112,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   size: 207078
 }
     */
-    console.log(req.body); //[Object: null prototype] { name: 'Leo C. Gillespie' }
+    //console.log(req.body); //[Object: null prototype] { name: 'Leo C. Gillespie' }
 
     //we only update info related with no passwords, so if any password is pressent we will reject
     if (req.body.password || req.body.passwordConfirm) {
