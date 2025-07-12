@@ -23,7 +23,7 @@ const viewsRouter = require('./routes/viewRoutes');
 const toursRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/userRoutes');
 const reviewsRouter = require('./routes/reviewRoutes');
-
+const bookingsRouter = require('./routes/bookingRoutes');
 const AppError= require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControler');
 const specs = require('./utils/swagger/swagger');
@@ -112,6 +112,7 @@ app.use('/', viewsRouter);
 app.use('/api/v1/tours', toursRouter);
 app.use('/api/v1/users', usersRouter);
 app.use('/api/v1/reviews', reviewsRouter);
+app.use('/api/v1/bookings', bookingsRouter);
 
 app.all('*', (req, res, next)=>{
   next(new AppError(`cant find ${req.originalUrl} on this server`, 404));

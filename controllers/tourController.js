@@ -14,7 +14,6 @@ const sharp = require('sharp'); //sharp is a library to resize images
 const Tour = require('../models/tourModels');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
-//const APIFeatures= require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 
 

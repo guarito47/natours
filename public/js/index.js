@@ -5,6 +5,7 @@ import '@babel/polyfill';
 import {displayMap} from './mapbox';
 import {login, logout} from './login'
 import {updateData, updateSettings} from './updateSettings';
+import {bookTour} from './stripe';
 
 
 //DOM ELEMENTS we will look at the page if they are requesting for the special elements to load by ex the map
@@ -16,7 +17,7 @@ const loginForm=document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
-
+const bookBtn = document.getElementById('book-tour');
 
 
 //VALUES
@@ -92,4 +93,14 @@ if(userPasswordForm){
     document.getElementById('password-confirm').value='';
     document.querySelector('.btn--save-password').textContent='Save password';    
   });  
+}
+//to process a purchase of tour from tour page
+if(bookBtn){
+  bookBtn.addEventListener('click', e=>{
+    //e.target is the element that trigger the event our case the button
+    e.target.textContent='Processing...'; //change the button text to indicate that is processing
+    //from pug template we define the tour id as data-tour-id that javascript wil convert in tourId
+    const tourId = e.target.dataset.tourId; //you ca use destructuring as well, const {tourId} = e.target.dataset;
+    bookTour(tourId); //call the bookTour function with the tour ID
+  });
 }

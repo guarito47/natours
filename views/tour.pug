@@ -3,8 +3,11 @@ include _reviewCard
 //-the append word will add the extra code bellow to the actual block head, so the head block its enough for base
 //- but for this tour page we need the same head bloack and a google map view that only has this page
 block append head   
+  //- the mapbox-gl-js is a library that allows us to use Mapbox maps from the client side
   script(src='https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.js')
-  link(href='https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css' rel='stylesheet')  
+  link(href='https://api.mapbox.com/mapbox-gl-js/v3.12.0/mapbox-gl.css' rel='stylesheet') 
+  //- the stripe.js is a library that allows us to use stripe payment system from the client side
+  script(src='https://js.stripe.com/basil/stripe.js')
   
 
 mixin overviewBox(label, text, icon)
@@ -70,7 +73,7 @@ block content
     each img, i in tour.images
       .picture-box
         //-img.picture-box__img.picture-box__img--1(src=`/img/tours/${img}`, alt=`The Park Camper Tour ${i+1}`)
-        img.picture-box__img(src=`/img/tours/${img}`, alt=`The Park Camper Tour ${i+1}`, class=`picture-box__img--${i+1}`)
+        img.picture-box__img(src=`/img/tours/${img}`, alt=`The Park Camper Tours ${i+1}`, class=`picture-box__img--${i+1}`)
 
 
   section.section-map
@@ -93,4 +96,12 @@ block content
       .cta__content
         h2.heading-secondary What are you waiting for?
         p.cta__text=`${tour.duration} days. 1 adventure. Infinite memories. Make it yours today!` 
-        button.btn.btn--green.span-all-rows Book tour now!
+        //- if user is logged in, we will show the button to book the tour
+        //- we will add an Id (#book-tour)to look from the client side, also we will append the tour ID
+        //- by creating a data attribute (data-tour-id) to the button with the tour ID
+        if user
+          button.btn.btn--green.span-all-rows#book-tour(data-tour-id=`${tour.id}`) Book tour now!
+        else
+          //- if user is not logged in, we will show the button to log in an redirect to login page
+          //- we will change the element as a link to the login page
+          a.btn.btn--green.span-all-rows(href='/login') Log in to book tour!
