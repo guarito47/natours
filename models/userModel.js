@@ -149,7 +149,7 @@ userSchema.methods.createPasswordResetToken = function() {
     .update(resetToken)
     .digest('hex');
 
-  console.log({ resetToken }, this.passwordResetToken);
+  //console.log({ resetToken }, this.passwordResetToken);
   //we are giving 10 mins to change their password number min x sec x milisec to sec
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   //IMPORTANT: we are sending unincrypted token bye email, the encrypted version is only for the DB 

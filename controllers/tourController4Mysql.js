@@ -20,7 +20,7 @@ exports.getAllTours= async(req, res)=>{
         //Tour.findOne({_id: req.params.id})
         
         //const [rows]= await mySqlDb.query('SELECT * FROM tour')
-        console.log('join mysql local get all tours');
+        //console.log('join mysql local get all tours');
         const data= await mySqlDb.query('SELECT * FROM tour');
 
         res.status(200).json(

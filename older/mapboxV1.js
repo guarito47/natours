@@ -5,7 +5,7 @@
 //#map(data-locations=`${JSON.stringify(tour.locations)}`)
 //then we pass to object usinf JSON.parse
 const locations = JSON.parse(document.getElementById('map').dataset.locations);
-console.log(locations);
+//console.log(locations);
 
 mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Vhcml0bzQ3IiwiYSI6ImNtY21sN3RxdDBreHAyaW9kMzU0dnR6cGgifQ.JnT02vbcmu7Ygb_DdCnbHA';
 const map = new mapboxgl.Map({

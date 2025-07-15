@@ -10,7 +10,7 @@ export const updateData= async(name, email)=>{
     const res = await axios({
       method: 'PATCH',
       //for now we are using our localhost but later we will use the production url
-      url: 'http://127.0.0.1:3000/api/v1/users/updateMe',
+      url: '/api/v1/users/updateMe',
       data: {
         name,
         email
@@ -34,8 +34,8 @@ export const updateSettings= async(data, type)=>{
 
     const url=
       type==='password'//here we switch the api method
-      ? 'http://127.0.0.1:3000/api/v1/users/updateMyPassword'
-      : 'http://127.0.0.1:3000/api/v1/users/updateMe';
+      ? '/api/v1/users/updateMyPassword'
+      : '/api/v1/users/updateMe';
     const res = await axios({
       method: 'PATCH',      
       url,

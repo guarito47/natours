@@ -19,7 +19,7 @@ const importData= async()=>{
 
     try {
         await Tour.create(tours);
-        console.log('data successfully loaded');
+        //console.log('data successfully loaded');
         
     } catch (error) {
         console.log(error);

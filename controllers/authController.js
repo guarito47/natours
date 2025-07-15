@@ -123,7 +123,7 @@ exports.signup = catchAsync( async(req, res, next)=>{
   // re.get.host works for localhost, dev, or prod
   //we will have a button with url to account page (me) to see their account info
   const url=`${req.protocol}://${req.get('host')}/me`;
-  console.log(`url: ${url}`);
+  //console.log(`url: ${url}`);
   //we start with await because sendWelcome() is a async funtion so we need to await for it
   await new Email(newUser, url).sendWelcome();
 

@@ -17,7 +17,7 @@ module.exports = class Email {
   //prepares the transport (mail server, port, credentials) depending on the environment
   natoursTransport() {
   //we ask if we are in development or production environment
-  console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);  
+  //console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);  
     if(process.env.NODE_ENV.trim() === 'production') {
       //FOR NOW SENGRID IS NOT WORKING DUE TO PHONE VERIFICATION, SO WE WILL USE NODEMAILER
       return nodemailer.createTransport({

@@ -139,10 +139,10 @@ reviewSchema.pre(/^findOneAnd/, async function(next) {
   the 'clone' method is used to create a copy of the query so we can use it later 
   also clone is used to avoid the query to be executed at this point to dont fall in 'query already executed' error
   */
-  console.log("this in pre findOneAnd");
+  
   //this.r ='685c7056b6062f0769c3ff21';
   this.r = await this.findOne().clone();//'r' store the Review document that we are going to update or delete  
-  console.log("after findone clone", this.r);
+  
   next();
 });
 
@@ -152,7 +152,7 @@ reviewSchema.post(/^findOneAnd/, async function() {
   this.r.tour is the tour id of the review that we are going to update
   await this.findOne(); does NOT work here, will show empty because review doent exist at this point
   */
-  console.log("this in post findOneAnd");
+  
   await this.r.constructor.calcAverageRatings(this.r);
   //this.r.constructor is the Review model, so we can use the static method calcAverageRatings
   /*for some reason this middleware its not fired after pre findoneAndUpdate or findOneAndDelete

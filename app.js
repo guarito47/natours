@@ -15,7 +15,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
-
+const compression = require('compression');//to compress the response json/html to be more faster
 const winston = require('winston/lib/winston/config');
 const swaggerUI = require('swagger-ui-express');
 //const swaggerJsdoc = require('swagger-jsdoc');
@@ -41,8 +41,6 @@ app.set('view engine', 'pug');
 //so we dont need to worry about which /, \, // if we are using in our system, windows or linux
 app.set('views', path.join(__dirname,'views')); //setting views directory
 
-
-
 //1) GLOBAL MIDDLEWARES
 //serving statis files , refactoring older way for path join
 
@@ -50,7 +48,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //set http headers blinded to dont public critical info
 app.use(helmet());
-
 
 //chossing morgan depening dev o rprod envirenment
 if (process.env.NODE_ENV === 'development'){
@@ -96,6 +93,7 @@ app.use(hpp({
   whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'maxFroupSize', 'difficulty', 'price']
 }));
 
+app.use(compression()); //to compress the response json/html to be more faster
 
 //test middleware
 app.use((req, res, next) => {

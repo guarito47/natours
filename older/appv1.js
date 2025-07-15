@@ -35,12 +35,12 @@ app.get('/api/v1/tours', (req, res)=>{
 });
 
 app.get('/api/v1/tours/:id', (req, res)=>{
-    console.log(req.params)
+    //console.log(req.params)
     //we grab the id from the url param TRICK: and * 1 to convert to numerical value
     const urlId = req.params.id*1;    
     //we use find function to grab the specific tour
     const tourFinded= tours.find(el => el.id===urlId );
-    console.log(tourFinded);
+    //console.log(tourFinded);
     //this if is to reproduce a fictional invalid id by just comparing url id > the tours.lenght    
     //if(urlId>tours.length){
     if(!tourFinded){//if we tourfinded is null(undefined) by no exist

@@ -100,7 +100,7 @@ exports.resizeTourImages = catchAsync( async (req, res, next)=>{
             req.body.images.push(photoFilename); //we push the filename to the images array
     }));
 
-    console.log(req.body.images);
+    //console.log(req.body.images);
     next();
 });
     

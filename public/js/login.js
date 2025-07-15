@@ -7,7 +7,7 @@ export const login=async (email, password)=>{
   try{
     const res= await axios({
       method: 'POST',
-      url: 'http://127.0.0.1:3000/api/v1/users/login',
+      url: '/api/v1/users/login',
       data:{
         email,
         password
@@ -35,14 +35,18 @@ export const logout= async ()=>{
   try{
     const res= await axios({
       method: 'GET',
-      url: 'http://127.0.0.1:3000/api/v1/users/logout'
+      //url: 'http://127.0.0.1:3000/api/v1/users/logout'
+      //by deleting the host and live from api we are using relative path, so can work for production and development
+      //notice that this only work because the server is running in the same port as the client, 
+      // if we run teh frontend in another server we need to set the full url of teh correct server
+      url: '/api/v1/users/logout'
     });
 
     //once is executed the logout at this point we have a invalid cookie in the browser, so we need to reload the page
     //if we dont do that step the page still show as logged till click in another page, so to reflect the change 
     //we will reload the page as follows
-    console.log("res.data");
-    console.log(res.data);
+    //console.log("res.data");
+    //console.log(res.data);
     if(res.data.status==='success'){
       //this reload will force reload from the server and not from the browser cache
       //if we dont set true, it will reload from the browser, it will have the dummy token that is correct but
