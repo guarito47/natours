@@ -1,5 +1,6 @@
 const Tour = require('../models/tourModels');
 const User = require('../models/userModel');
+const Bookings = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const appError = require('../utils/appError');
 
@@ -51,6 +52,23 @@ exports.getAccount = (req, res)=>{
     title: 'Your acoount'
   });
 };
+
+exports.getMyTours = catchAsync(async(req, res, next)=>{
+  //1 get all tours that the user booked
+  const bookings = await Bookings.find({ user: req.user.id });
+  //2 get the tours from the bookings, map will create another array based on the callback function
+  //that we pass to it, in this case we want to get the tour id from each booking 'el.tour' in fact is the id
+  const tourIds = bookings.map(el => el.tour);
+  //we cant use findById because we have an array of ids, so we use find with the $in operator inside
+  //what means find by the id field whay we have in the tourIds array
+  const tours = await Tour.find({ _id: { $in: tourIds } });
+
+  //3 render the my-tours page with the tours that we found
+  res.status(200).render('overview', {
+    title: 'My Tours',
+    tours
+  });
+});
 
 exports.updateUserData = catchAsync(async(req, res, next)=>{
   const updatedUser = await User.findByIdAndUpdate(req.user.id, {

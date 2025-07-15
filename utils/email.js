@@ -19,10 +19,18 @@ module.exports = class Email {
   //we ask if we are in development or production environment
   console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);  
     if(process.env.NODE_ENV.trim() === 'production') {
-      // in production we will use the sendgrid service
-      console.log('Using SendGrid for email sending');
-      console.log(process.env.SENDGRID_USERNAME, process.env.SENDGRID_PASSWORD);
+      //FOR NOW SENGRID IS NOT WORKING DUE TO PHONE VERIFICATION, SO WE WILL USE NODEMAILER
       return nodemailer.createTransport({
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
+        auth: {
+          user: process.env.EMAIL_USERNAME,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+      
+      // in production we will use the sendgrid service      
+      /*return nodemailer.createTransport({
         //node js knows internally the server ports etc, here we just tell it to use the sendgrid service
         service: 'SendGrid', 
         auth: {
@@ -30,7 +38,7 @@ module.exports = class Email {
           pass: process.env.SENDGRID_PASSWORD // this is the password for the sendgrid service
         }
         //to test the real email sending we will use mailsac.com and create a fake email account
-      });
+      });*/
     }
     // if we are in development we will use the nodemailer service
     return nodemailer.createTransport({
