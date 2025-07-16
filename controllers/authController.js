@@ -56,7 +56,6 @@ const signToken =  async(userId)=>{
     
 };*/
 
-
 //const signToken = (userId) =>jwt.sign( { id:userId}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN})
 
 /**
@@ -65,7 +64,7 @@ const signToken =  async(userId)=>{
  * @param {number} statusCode status to be assigned in the response
  * @param {Object} res the global response to return to the client
  */
-const createSendToken= async (newUser, statusCode, res)=>{  
+const createSendToken= async (newUser, statusCode, req,  res)=>{  
   const token= signToken(newUser._id.valueOf());
   
   /* TO GET JWT SECRET FROM KEY VAULT
@@ -78,18 +77,24 @@ const createSendToken= async (newUser, statusCode, res)=>{
     logger.error(`error from keyvault: ${error}`);
     console.log(error);
   }  */
-
+  console.log("req.headers");
+  console.log(req.headers);
+  console.log("req.secure");
+  console.log(req.secure);
+  
   const cookieOptions= {
     //cookie value is 90 days we need to convert to miliseconds where 24 hours 60 min, 60 sec x 1000 to be miliseconds  
     expires: new Date(Date.now()+process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    //secure: true, //to works only through httpS , 
+    //we will set manually the httpS depends if we are on dev o production mode, 
+    // the problem here is that node_env doesnt guarantee that we are in https connection, because is just a variable
+    //if(process.env.NODE_ENV ==='production') //so we will use a property of req.secure but we need to enable proxyes
+    //because heroku, or azure or any other hosting service use proxy, so we add in the app.js this feature to trust
+    secure: req.secure || req.headers['x-forwarded-proto']==='https', //to work in secure mode when is in production
     httpOnly: true //means that the cookie only can be accessing bye http and no other ways to accessing it
     //also we cant modify or remove it from the browser
   };
-    
-  //we will set manually the httpS depends if we are on dev o production mode
-  if(process.env.NODE_ENV ==='production') cookieOptions.secure = true;
-  //to SEND THE TOKEN AS A COOKIE AND SAVE IR INTO THE BROWSER CLIENT
+  
+  //to SEND THE TOKEN AS A COOKIE AND SAVE IT INTO THE BROWSER CLIENT
   res.cookie('jwt', token, cookieOptions);
   //in order to remove the passsword from the output mean in the json response we can set undefined
   newUser.password= undefined;
@@ -127,7 +132,7 @@ exports.signup = catchAsync( async(req, res, next)=>{
   //we start with await because sendWelcome() is a async funtion so we need to await for it
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 /**
@@ -152,7 +157,7 @@ exports.login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   } 
   // 3) If everything ok, send token to client  
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
   
 });
 
@@ -190,7 +195,7 @@ exports.protect = catchAsync(async (req, res, next)=>{
   }
   
   if(!token){
-    logger.warn(new AppError('You are not logged in! please log in first', 401));
+    //logger.warn(new AppError('You are not logged in! please log in first', 401));
     return next(new AppError('You are not logged in! please log in first', 401));
   }
 
@@ -201,12 +206,12 @@ exports.protect = catchAsync(async (req, res, next)=>{
   const currentUserFromDB = await User.findById(decoded.id);
 
   if(!currentUserFromDB){
-    logger.error(new AppError('The user that belongs this token, no longer exist', 401))
+    //logger.error(new AppError('The user that belongs this token, no longer exist', 401))
     return next(new AppError('The user that belongs this token, no longer exist', 401));    
   }
   // 4) if the user change the password after the token was give, 
   if(currentUserFromDB.changedPswAfter(decoded.iat)){  
-    logger.error(new AppError('The user recently change their psw, please log in again', 401));  
+    //logger.error(new AppError('The user recently change their psw, please log in again', 401));  
     return next(new AppError('The user recently change their psw, please log in again', 401));
   }
   req.user= currentUserFromDB;//the req.user is used for api request
@@ -356,7 +361,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 3) Update changedPasswordAt property for the user
   // 4) Log the user in, send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -380,5 +385,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4) Log user in, send JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req,  res);
 });

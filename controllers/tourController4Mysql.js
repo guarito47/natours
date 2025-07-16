@@ -7,7 +7,7 @@
  * @license MIT License
  */
 //const Tour = require('../models/tourModels');
-const mySqlDb = require("../config/dbMysql");
+const mySqlDb = require("../utils/dbMysql");
 
 /**
  * retrieve all the tours in the mysql db 

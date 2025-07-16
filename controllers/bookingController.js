@@ -7,13 +7,12 @@ const factory = require('./handlerFactory');
 const AppError = require('../utils/appError');
 const { model } = require('mongoose');
 /**
- * stripe worksas follow, 
+ * stripe works as follow, 
  * A. client side with their public stripe key send a request to pay a tour, 
  * B. server recieve the request and creates a stripe session and send back to client, 
  * C. client redirects to stripe checkout page,(stripe pages/server) so we dont process any payment info in our server,
  * D. client pays the tour, and stripe redirects to our server with the payment info so we can process the booking,
  */
-
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
@@ -52,6 +51,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
+//middleware to save in DB the tour purchased
 exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // This is only temporary, because it's an unprotected route, means if someone knows this route
   // anyone can create a booking without paying, so we will remove this later

@@ -1,1 +1,2 @@
-Natours app, a tourism website for booking tours in EEUU
+# Natours app, a tourism website for booking tours in EEUU
+wrote in Node JS with Express framework, using Mongo DB, Stripe Payment framework, Mapbox for geoespatial locations, pug templates, azure keyvault and more friends!

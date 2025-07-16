@@ -6,10 +6,11 @@ const router = express.Router();
 router.use(authController.protect); // this will run for all the routes in this file that need a session
 
 router.get('/checkout-session/:tourId',
-  authController.protect,
   bookingController.getCheckoutSession
 );
-// will run from routes above this line for thsi routes
+// from here with this middleware, we only have this options for admins, and lead guides the control 
+// of watch, create, update the bookings of a users, by example when pay in cash we need to create 
+// the booking manually
 router.use(authController.restrictTo('admin', 'lead-guide')); 
 
 router

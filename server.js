@@ -9,7 +9,7 @@
 
 const mongoose = require('mongoose');
 const dotEnv = require('dotenv');
-const mySqlPool= require('./config/dbMysql');
+const mySqlPool= require('./utils/dbMysql');
 const azGetSecret= require('./utils/azureKeyVault');
 const logger = require('./utils/logger');
 
@@ -65,7 +65,6 @@ const server=app.listen(port, ()=>{
 * raise an hunhandled promise like a db conection fail
 * @param {Object} err the unhandled promise rejection error 
 */
-
 process.on('unhandledRejection', err=>{
   console.log('NATOURS UNHANDLER REJECTION! SHUTTING DOWN');
   console.log(err.name, err.message);
@@ -74,3 +73,14 @@ process.on('unhandledRejection', err=>{
   });
 });
 
+//if you are in a hosting, due for many reasons the web app will be shutdown abrut, 
+//if we dont hanbdle this shutdwon our app can we stopped abrut when a booking is in progress, 
+//causing errors in the app, to solve this we need to handle the sigterm signal that is and advice to shutdown
+process.on('SIGTERM', ()=>{//we do not receive an error is a signal so that why is empty the ()=>
+  console.log('Sigterm received, shutting down gracefully!☺');
+  //server.close() will close the server, will not receive more request while finish the current request
+  server.close(()=>{
+    console.log('proccess terminated by sigterm!');
+    //no need to call process.exit(1) because the hosting will cause the application to shutdown
+  });
+});

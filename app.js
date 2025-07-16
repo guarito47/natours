@@ -33,6 +33,8 @@ const APIFeatures = require('./utils/apiFeatures');
 // eslint-disable-next-line new-cap
 
 const app = new express();
+//express built in feature to allow proxyes (redirections of the request used when is deployed in hostings platforms) 
+app.enable('trust proxy');
 
 //we define engine for redering or templates, in this case 'pug'need to be installed first
 app.set('view engine', 'pug');
