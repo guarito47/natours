@@ -16,7 +16,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');//to compress the response json/html to be more faster
-
+const cors = require('cors'); //allows to use our api from external url domains/server/browsers 
 const winston = require('winston/lib/winston/config');
 const swaggerUI = require('swagger-ui-express');
 //const swaggerJsdoc = require('swagger-jsdoc');
@@ -45,8 +45,26 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname,'views')); //setting views directory
 
 //1) GLOBAL MIDDLEWARES
-//serving statis files , refactoring older way for path join
+//implement cors (Cross Origin Resource Sharing)
+//allows to use our api from external url domains/server/browsers
+app.use(cors());
+//if only want to enable cors for specific route, we only set corse like this
+//app.use('/api/v1/tours', cors(), toursRouter);
+//because cors what does is set Access-Control-Allow-Origin * that means allow to all
+//if we want only a specific domain or subdomain, like is the case of separated server for front and backend
+//api.natours.io (our backend) and natours.io (as frontend)
+/*app.use(cors({
+  origin: 'https://www.natours.io'
+}));*/
 
+//even that cors allows to receive request to our api, this only allow 'simple request' that is get and post, 
+// so we need to set 'non simple request' api resquest for delete patch or even set cookie 
+// to allow those (*) we need to allow the acces (cors()) in order to say that is safe to receive and respond 
+app.options('*', cors());
+//for specific api request we can do as follow
+//app.options('/api/v1/tours/:id', cors());
+
+//serving statis files , refactoring older way for path join
 app.use(express.static(path.join(__dirname, 'public')));
 
 //set http headers blinded to dont public critical info

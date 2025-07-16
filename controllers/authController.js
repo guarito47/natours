@@ -77,10 +77,6 @@ const createSendToken= async (newUser, statusCode, req,  res)=>{
     logger.error(`error from keyvault: ${error}`);
     console.log(error);
   }  */
-  console.log("req.headers");
-  console.log(req.headers);
-  console.log("req.secure");
-  console.log(req.secure);
   
   const cookieOptions= {
     //cookie value is 90 days we need to convert to miliseconds where 24 hours 60 min, 60 sec x 1000 to be miliseconds  
@@ -147,13 +143,13 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 1) Check if email and password exist
   if (!email || !password) {
-    logger.warn(new AppError('Please provide email and password!', 400));
+    //logger.warn(new AppError('Please provide email and password!', 400));
     return next(new AppError('Please provide email and password!', 400));
   }
   // 2) Check if user exists && password is correct  
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.correctPassword(password, user.password))) {
-    logger.error(new AppError('Incorrect email or password', 401));
+    //logger.error(new AppError('Incorrect email or password', 401));
     return next(new AppError('Incorrect email or password', 401));
   } 
   // 3) If everything ok, send token to client  
