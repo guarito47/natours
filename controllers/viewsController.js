@@ -7,7 +7,7 @@ const appError = require('../utils/appError');
 exports.alerts=  (req, res, next)=>{
   const {alert}= req.query; //this will grab the alert parameter from the url
   if(alert==='booking')
-    res.local.alert = "Your booking was successful, please check your email for a confirmation. If your booking doesn't shop up here inmediatly, please come back later"; 
+    res.locals.alert = "Your booking was successful, please check your email for a confirmation. If your booking doesn't shop up here inmediatly, please come back later"; 
   next();
 };
 
