@@ -14,6 +14,8 @@ const { model } = require('mongoose');
  * C. client redirects to stripe checkout page,(stripe pages/server) so we dont process any payment info in our server,
  * D. client pays the tour, and stripe redirects to our server with the payment info so we can process the booking,
  */
+
+// when hit /checkout-session/:tourId this function is called to only get a session given data abut the item
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // 1) Get the currently booked tour
   const tour = await Tour.findById(req.params.tourId);
@@ -74,7 +76,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   //res.redirect(req.protocol + '://' + req.get('host') + '/');//IA suggestion
   res.redirect(req.originalUrl.split('?')[0]); // this will remove the query parameters from the url
 });*/
-
+//the function save in the mongo db the new booking reservation for the user in the specific tour and specific price
 const createBookingCheckout= async (session) =>{
   
   const tour = session.client_reference_id; //as we store in that variable the tour id in getCheckoutSession
@@ -86,6 +88,8 @@ const createBookingCheckout= async (session) =>{
 
 
 //this will be called from the global route 'webhook-checkout' in app.js that calls controller.webhookCheckout
+//after getCheckoutSession gets the session and it redirects to this webhook that is in charge to open 
+// stripe payment page and confirms if was successfull or not, and save in db 
 exports.webhookChekout = (req, res, next)=>{
   
   const signature = req.headers['stripe-signature'];
