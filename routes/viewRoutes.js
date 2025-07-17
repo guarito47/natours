@@ -2,8 +2,10 @@ const express = require('express');
 const viewsController = require('../controllers/viewsController');
 const authController = require('../controllers/authController');
 const bookingController = require('../controllers/bookingController');
+
 const router= express.Router();
 
+router.use(viewsController.alerts);
 /* this was just a test to render a template
 router.get('/', (req, res) => {
   res.status(200).render('base', {

@@ -25,7 +25,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
     payment_method_types: ['card'], // we accept card payments
     //no secure way, exposing the url for create bookings without confirm payment
     //success_url: `${req.protocol}://${req.get('host')}/my-tours/?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`, // we redirect home after success
-    success_url: `${req.protocol}://${req.get('host')}/my-tours/`, // we redirect to my-tours page
+    success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`, // we redirect to my-tours page
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`, // we redirect to tourId page after cancel
     customer_email: req.user.email, // we send the user email to stripe
     client_reference_id: req.params.tourId, // we send the tourId to stripe

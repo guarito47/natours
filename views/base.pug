@@ -10,7 +10,7 @@ html
       title Natours | #{tittle}    
       
 
-  body 
+  body(data-alert=`${alert ? alert: ''}`) 
     //- HEADER SECTION
     include _header
     //- CONTENT SECTION

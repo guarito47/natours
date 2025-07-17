@@ -6,7 +6,7 @@ import {displayMap} from './mapbox';
 import {login, logout} from './login'
 import {updateData, updateSettings} from './updateSettings';
 import {bookTour} from './stripe';
-
+import {showAlert} from './alerts';
 
 //DOM ELEMENTS we will look at the page if they are requesting for the special elements to load by ex the map
 //so if theres no need to load a map where a page doesnt have it, wil throw an error if we dont verify first
@@ -104,3 +104,6 @@ if(bookBtn){
     bookTour(tourId); //call the bookTour function with the tour ID
   });
 }
+
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alert) showAlert('success', alertMessage, 20);

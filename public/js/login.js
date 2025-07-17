@@ -1,7 +1,7 @@
 
 /**as this file is javascript and not node js we call export(javascript) and not exports (nodejs) */
 import axios from 'axios';
-import {showAlert} from './alerts'
+import {showAlert} from './alerts';
 
 export const login=async (email, password)=>{
   try{
