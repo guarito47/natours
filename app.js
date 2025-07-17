@@ -25,6 +25,7 @@ const toursRouter = require('./routes/tourRoutes');
 const usersRouter = require('./routes/userRoutes');
 const reviewsRouter = require('./routes/reviewRoutes');
 const bookingsRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 const AppError= require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorControler');
 const specs = require('./utils/swagger/swagger');
@@ -87,6 +88,13 @@ const limiter = rateLimit({
 });
 
 app.use('/api',limiter);
+//we are setting here this route instead of the booking router, because the the middleware webhookCheckout
+//need to read the body in a raw format, if we put in bookings router they will be parsed to json format
+app.post('/webhook-checkout', express.raw({
+  type: 'application/json'
+}), 
+bookingController.webhookChekout);
+
 //this parser the content to the body in json format, to read data from body into req.body,
 // also as parameter the limit size of the body in order to prevent attacks with big body data size,
 // trying to down the server

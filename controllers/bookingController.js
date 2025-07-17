@@ -1,6 +1,7 @@
 //to have the object already setup with secret key send this as parameter in the require
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const Tour = require('../models/tourModels');
+const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./handlerFactory');
@@ -22,7 +23,9 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   // like the amount, currency, and the success and cancel urls
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'], // we accept card payments
-    success_url: `${req.protocol}://${req.get('host')}/?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`, // we redirect home after success
+    //no secure way, exposing the url for create bookings without confirm payment
+    //success_url: `${req.protocol}://${req.get('host')}/my-tours/?tour=${req.params.tourId}&user=${req.user.id}&price=${tour.price}`, // we redirect home after success
+    success_url: `${req.protocol}://${req.get('host')}/my-tours/`, // we redirect to my-tours page
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`, // we redirect to tourId page after cancel
     customer_email: req.user.email, // we send the user email to stripe
     client_reference_id: req.params.tourId, // we send the tourId to stripe
@@ -35,7 +38,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
             description: tour.summary, // we send the tour summary to stripe
             //a sample of a image of the product, we will use a static image for testing because nee to be on the web
             //images: [`${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`], // we send the tour cover image to stripe
-            images: ['https://www.natours.com/img/tours/tour-1-cover.jpg'], // we send the tour cover image to stripe
+            images: [`${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`], // we send the tour cover image to stripe
           },
           unit_amount: tour.price * 100, // we send the tour price to stripe in cents
           currency: 'usd', // we set the currency to usd
@@ -51,8 +54,8 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-//middleware to save in DB the tour purchased
-exports.createBookingCheckout = catchAsync(async (req, res, next) => {
+//NON SECURE WAY middleware to save in DB the tour purchased
+/*exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // This is only temporary, because it's an unprotected route, means if someone knows this route
   // anyone can create a booking without paying, so we will remove this later
   const { tour, user, price } = req.query;  
@@ -70,7 +73,33 @@ exports.createBookingCheckout = catchAsync(async (req, res, next) => {
   // that will create another new fresh request without the query parameters
   //res.redirect(req.protocol + '://' + req.get('host') + '/');//IA suggestion
   res.redirect(req.originalUrl.split('?')[0]); // this will remove the query parameters from the url
-});
+});*/
+
+const createBookingCheckout= async (session) =>{
+  const tour = session.client_reference_id; //as we store in that variable the tour id in getCheckoutSession
+  const user = (User.findOne({email: session.customer_email})).id;
+  const price = session.display_items[0].price_data.unit_amount/1000;
+  await Booking.create({ tour, user, price });
+};
+
+exports.webhookChekout = (req, res, next)=>{
+  const signature = req.headers['stripe-signature'];
+  let event;
+  try {
+      event = stripe.webhooks.constructEvent(
+      req.body, 
+      signature, 
+      process.env.STRIPE_WEBHOOK_SECRET
+    );  
+  } catch (error) {
+    return res.status(400).send(`webhook error: ${err.message}`)
+  }
+  if(event.type==='checkout.session.completed')
+    createBookingCheckout(event.data.object);
+
+  res.status(200).json({received: true});
+
+};
 
 exports.createBooking = factory.createOne(Booking);
 exports.getBooking = factory.getOne(Booking);
