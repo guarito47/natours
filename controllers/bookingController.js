@@ -76,14 +76,22 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 });*/
 
 const createBookingCheckout= async (session) =>{
+  console.log('joins createBookingCheckout');
   const tour = session.client_reference_id; //as we store in that variable the tour id in getCheckoutSession
   const user = (User.findOne({email: session.customer_email})).id;
-  const price = session.display_items[0].price_data.unit_amount/1000;
+  const price = session.amount_total/1000;
+  console.log(tour, user, price);
   await Booking.create({ tour, user, price });
+  console.log('after cresting booking');
 };
 
+
+//this will be called from the global route 'webhook-checkout' in app.js that calls controller.webhookCheckout
 exports.webhookChekout = (req, res, next)=>{
+  console.log('join webhookCheckout')
   const signature = req.headers['stripe-signature'];
+  console.log("req.headers['stripe-signature']");
+  console.log(req.headers['stripe-signature']);
   let event;
   try {
       event = stripe.webhooks.constructEvent(
@@ -94,7 +102,10 @@ exports.webhookChekout = (req, res, next)=>{
   } catch (error) {
     return res.status(400).send(`webhook error: ${err.message}`)
   }
-  if(event.type==='checkout.session.completed')
+  console.log("event.type");
+  console.log(event.type);
+
+  if(event.type ==='checkout.session.completed')
     createBookingCheckout(event.data.object);
 
   res.status(200).json({received: true});
